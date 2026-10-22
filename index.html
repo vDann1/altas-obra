@@ -44,13 +44,16 @@ body{background:var(--bg);color:var(--fg);font:15px/1.45 var(--body)}
 header.top{background:var(--brand);color:var(--brand-fg)}
 header.top .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;padding-block:14px}
 .brand{font:600 24px/1 var(--display);letter-spacing:.02em;display:flex;align-items:center;gap:10px;margin-right:auto}
-.b.theme{background:rgba(255,255,255,.1);color:var(--brand-fg);border:1px solid rgba(255,255,255,.28);padding:6px 12px;font-size:14px}
+.b.theme{background:rgba(255,255,255,.1);color:var(--brand-fg);border:1px solid rgba(255,255,255,.28);padding:6px 12px;font-size:14px;width:11.5em;white-space:nowrap}
 .net{font:500 12px var(--body);letter-spacing:.04em;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.14)}
 .b.inst{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);padding:7px 14px;font-size:15px}
 .brand i{display:inline-block;width:14px;height:22px;background:repeating-linear-gradient(135deg,var(--accent) 0 5px,var(--brand) 5px 10px);border-radius:2px}
 .hf{display:flex;flex-direction:column;gap:3px;min-width:0}
 .hf label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
-.hf input{background:rgba(255,255,255,.1);color:var(--brand-fg);border:1px solid rgba(255,255,255,.28);border-radius:6px;padding:6px 9px;font:inherit;width:190px;max-width:100%}
+.hf input{background:rgba(255,255,255,.1);color:var(--brand-fg);border:1px solid rgba(255,255,255,.28);border-radius:6px;padding:6px 9px;font:inherit;width:175px;max-width:100%}
+.hgroup{display:flex;gap:12px 20px;align-items:end;flex-wrap:nowrap;min-width:0;flex-basis:100%}
+.hf input{height:34px;box-sizing:border-box}
+@media (max-width:640px){.hgroup{flex-wrap:wrap;width:100%}.hgroup .hf{flex:1 1 140px}.hgroup .hf input{width:100%}}
 .hf input:focus{outline:2px solid var(--accent);outline-offset:1px}
 nav.tabs{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--brand)}
@@ -158,9 +161,11 @@ h2.sec{font:600 18px var(--display);letter-spacing:.04em;margin:18px 0 8px}
   <div class="brand"><i aria-hidden="true"></i>ALTAS DE OBRA <span id="net" class="net" title="Estado de conexión"></span></div>
   <button class="b inst" id="b-inst" type="button" hidden>Instalar app</button>
   <button class="b theme" id="b-theme" type="button" aria-label="Cambiar tema">Tema: automático</button>
+  <div class="hgroup">
   <div class="hf"><label for="h-obra">Obra</label><input id="h-obra" placeholder="STUDIO 96"></div>
   <div class="hf"><label for="h-sup">Supervisor</label><input id="h-sup" placeholder="Nombre del supervisor"></div>
   <div class="hf"><label for="h-fecha">Fecha de elaboración</label><input id="h-fecha" type="date"></div>
+  </div>
 </div></header>
 
 <nav class="tabs" aria-label="Secciones"><div class="wrap" role="tablist">
@@ -294,7 +299,7 @@ h2.sec{font:600 18px var(--display);letter-spacing:.04em;margin:18px 0 8px}
   </table></div>
 </section>
 </main>
-<footer class="wrap" style="padding-block:0 28px;font-size:12px;color:var(--muted)">Altas de Obra · versión v3</footer>
+<footer class="wrap" style="padding-block:0 28px;font-size:12px;color:var(--muted)">Altas de Obra · versión v3.2</footer>
 
 <datalist id="dl-puestos"></datalist>
 <datalist id="dl-centros"></datalist>
@@ -743,15 +748,28 @@ function namesFromLabels(P){
   return (nom && pa) ? {nom, pat:pa, mat:sa||""} : null;
 }
 
-/* Qué campos puede llenar cada tipo de documento */
+/* Qué campos puede llenar cada tipo de documento (acta y recibo de luz se ignoran) */
 const PERMITIDOS = {
   "CURP": ["pat","mat","nom","curp"],
   "NSS (IMSS)": ["nss","curp","pat","mat","nom"],
   "Constancia SAT": ["homo","cp","edo","mun","pat","mat","nom","curp"],
   "INE": ["pat","mat","nom","curp"],
   "Banco": ["cuenta","tiene","banco"],
-  "Documento": ["nss","curp","pat","mat","nom"]
+  "Acta de nacimiento": [],
+  "Recibo de luz": [],
+  "Documento": ["nss","curp"]
 };
+const IGNORADOS = new Set(["Acta de nacimiento","Recibo de luz"]);
+function tipoDe(P){
+  if(/SITUACION FISCAL|CEDULA DE IDENTIFICACION FISCAL|SERVICIO DE ADMINISTRACION TRIBUTARIA|CONTRIBUYENTE/.test(P)) return "Constancia SAT";
+  if(/COMISION FEDERAL DE ELECTRICIDAD|\bCFE\b|TOTAL A PAGAR|SUMINISTRO|\bKWH\b|LECTURA ACTUAL|PERIODO FACTURADO/.test(P)) return "Recibo de luz";
+  if(/ACTA DE NACIMIENTO|PERSONA REGISTRADA|ANOTACIONES MARGINALES|DATOS DE FILIACION|IDENTIFICADOR ELECTRONICO|CERTIFICADO DE NACIMIENTO|OFICIALIA/.test(P)) return "Acta de nacimiento";
+  if(/INSTITUTO NACIONAL ELECTORAL|CREDENCIAL PARA VOTAR|IDMEX|CLAVE DE ELECTOR/.test(P)) return "INE";
+  if(/SEGURO SOCIAL|\bIMSS\b|SEGURIDAD SOCIAL|AFILIACION/.test(P)) return "NSS (IMSS)";
+  if(/CLAVE UNICA DE REGISTRO DE POBLACION|RENAPO|REGISTRO NACIONAL DE POBLACION|CONSTANCIA DE LA CLAVE|CURP CERTIFICADA/.test(P)) return "CURP";
+  if(/CLABE|ESTADO DE CUENTA|NUMERO DE CUENTA|NO DE CUENTA|TARJETA DE DEBITO|NUMERO DE TARJETA|DATOS DE CUENTA|BBVA|BANCOMER|SANTANDER|BANORTE|BANAMEX|HSBC|SCOTIABANK|BANCO AZTECA|BANCOPPEL|INBURSA/.test(P)) return "Banco";
+  return "Documento";
+}
 
 /* Bancos: cuenta -> CLABE -> tarjeta. Solo con etiqueta o con dígito verificador. */
 const TRAMPA = /(TELEFONO|TEL|CELULAR|EMPRESA|CLIENTE|REMESA|SUC|SUCURSAL|FOLIO|PLAZA|REFERENCIA|CONVENIO|RFC|CODIGO|CP|C P)\W{0,14}$/;
@@ -763,9 +781,17 @@ function leerBanco(raw, P){
   const clabe = (runs.find(r=>r.d.length===18 && clabeOk(r.d) && libre(r))||{}).d || "";
   const card = (runs.find(r=>r.d.length===16 && /^[345]/.test(r.d) && luhnOk(r.d) && libre(r) && !/CLABE\W*$/.test(r.antes))||{}).d || "";
   let cuenta = "", cuentaMala = "";
-  const reC = /(?:N[UO]MERO DE CUENTA|NO\.? ?DE ?CUENTA|NUM\.? ?DE ?CUENTA|NO\.? ?CUENTA|\bCUENTA)(?! ?CLABE)(?! ?DIGITAL)([^\d]{0,16}?)(\d[\d\-]{5,18}\d)(?![\-]?\d)/g;
-  while((m = reC.exec(U))){ if(/CLIENTE|CLABE|TEL|CELULAR|EMPRESA|TARJETA|SUC|PLAZA|RFC/.test(plain(m[1]))) continue;
-    const d = m[2].replace(/\D/g,""); if(d.length===10 || d.length===11){ cuenta = d; break; } else if(!cuentaMala && d.length<18) cuentaMala = d; }
+  // etiqueta de cuenta, con basura corta entre la etiqueta y el número; el número puede traer espacios o guiones
+  const reC = /(?:N[UO]MERO DE CUENTA|NO\.? ?DE ?CUENTA|NUM\.? ?DE ?CUENTA|NO\.? ?CUENTA|\bCUENTA)(?! ?CLABE)(?! ?DIGITAL)([^\d\n]{0,16}?\n?[^\d\n]{0,6}?)(\d(?:[ \-]?\d){5,20})(?![ \-]?\d)/g;
+  while((m = reC.exec(U))){
+    if(/CLIENTE|CLABE|TEL|CELULAR|EMPRESA|TARJETA|SUC|PLAZA|RFC|REFERENCIA/.test(plain(m[1]))) continue;
+    const grupos = m[2].split(/ +/); let acum = "", hallada = "";
+    for(const g of grupos){ acum += g.replace(/\D/g,""); if(acum.length===10 || acum.length===11){ if(!clabe || clabe.slice(17-acum.length,17)===acum) hallada = acum; } if(acum.length>11) break; }
+    if(hallada){ cuenta = hallada; break; }
+    const d = m[2].replace(/\D/g,""); if(!cuentaMala && d.length<18 && d.length!==10 && d.length!==11) cuentaMala = d; else if(!cuentaMala && (d.length===10||d.length===11)) cuenta = cuenta || d;
+  }
+  // cuenta impresa en otra columna (estado de cuenta en tabla): se toma solo si aparece tal cual y es la misma que trae la CLABE
+  if(!cuenta && clabe){ for(const L of [10,11]){ const c = clabe.slice(17-L,17); if(runs.some(r=>r.d===c) && !(L===11 && c[0]==="0")){ cuenta = c; break; } } }
   const coincide = cuenta && clabe ? clabe.slice(17-cuenta.length, 17)===cuenta : null;
   const out = {campos:{}, avisos:[], alt:[]};
   let usar = "";
@@ -780,22 +806,25 @@ function leerBanco(raw, P){
   if(!banco){ const b = P.match(/BBVA|BANCOMER|SANTANDER|BANORTE|BANAMEX|HSBC|SCOTIABANK|BANCO AZTECA|BANCOPPEL|INBURSA|BANBAJIO|BANREGIO|AFIRME/); if(b) banco = b[0]==="BANCOMER" ? "BBVA" : b[0]; }
   if(banco && usar) out.campos.banco = banco;
   [["cuenta",cuenta],["CLABE",clabe],["tarjeta",card]].forEach(([n,v])=>{ if(v && v!==usar) out.alt.push(n+" "+v); });
-  // titular: solo se compara, no se llena
   const pat = $("pat").value, nom = ($("nom").value||"").split(" ")[0];
   if(pat && nom && !(P.includes(plain(pat)) && P.includes(plain(nom))) && /TITULAR|ESTADO DE CUENTA|CLIENTE/.test(P))
     out.avisos.push("Revisa: no encontré el nombre del trabajador en este documento. ¿La cuenta es de otra persona?");
   return out;
 }
 
-function parseDoc(raw){
-  const T = norm(raw); const P = plain(raw);
-  const out = {tipo:"Documento", campos:{}, avisos:[], alt:[]};
-  if(/SITUACION FISCAL|CEDULA DE IDENTIFICACION FISCAL|SERVICIO DE ADMINISTRACION TRIBUTARIA/.test(P)) out.tipo = "Constancia SAT";
-  else if(/INSTITUTO NACIONAL ELECTORAL|CREDENCIAL PARA VOTAR|IDMEX/.test(P)) out.tipo = "INE";
-  else if(/SEGURO SOCIAL|\bIMSS\b|SEGURIDAD SOCIAL|AFILIACION/.test(P)) out.tipo = "NSS (IMSS)";
-  else if(/CLAVE UNICA DE REGISTRO DE POBLACION|RENAPO|REGISTRO NACIONAL DE POBLACION|CONSTANCIA DE LA CLAVE/.test(P)) out.tipo = "CURP";
-  else if(/CLABE|ESTADO DE CUENTA|NUMERO DE CUENTA|NO DE CUENTA|TARJETA DE DEBITO|NUMERO DE TARJETA|BBVA|BANCOMER|SANTANDER|BANORTE|BANAMEX|HSBC|SCOTIABANK|BANCO AZTECA|BANCOPPEL|INBURSA/.test(P)) out.tipo = "Banco";
+function nombreValido(n, curp){
+  if(!n || !n.pat || !n.nom) return false;
+  const palabras = [n.pat, n.mat, n.nom].join(" ").split(/\s+/).filter(Boolean);
+  if(palabras.some(w=>!PARTICULAS.has(w) && w.length<2)) return false;
+  if(palabras.some(w=>STOP.has(w))) return false;
+  if(!curp || curp.length!==18) return false; // sin CURP no hay cómo confirmar el nombre
+  return nameFitsCurp(n.pat.split(" "), (n.mat||"").split(" ").filter(Boolean), n.nom.split(" "), curp);
+}
 
+function parseDoc(raw, tipoForzado){
+  const T = norm(raw); const P = plain(raw);
+  const out = {tipo: tipoForzado || tipoDe(P), campos:{}, avisos:[], alt:[]};
+  if(IGNORADOS.has(out.tipo)) return out;
   if(out.tipo==="Banco"){ const b = leerBanco(raw, P); Object.assign(out.campos, b.campos); out.avisos.push(...b.avisos); out.alt = b.alt; return out; }
 
   const curp = findCurp(T);
@@ -806,44 +835,33 @@ function parseDoc(raw){
     out.campos.nss = ns.nss;
     if(!ns.ok) out.avisos.push(ns.nss.length!==11 ? `El NSS se leyó con ${ns.nss.length} dígitos (deben ser 11). Revísalo contra el documento.` : "El NSS leído no cuadra su dígito verificador. Revísalo contra el documento.");
   }
-
   if(out.tipo==="Constancia SAT"){
     const rfc = grab(T.replace(/\s+/g," "), /RFC\s*:?\s*([A-ZÑ&]{4}\s*\d{6}\s*[A-Z0-9]{3})\b/).replace(/\s/g,"");
-    if(rfc){ out.campos.homo = rfc.slice(10); out.rfc = rfc; }
+    if(rfc && (!curpRef || rfc.slice(0,10)===curpRef.slice(0,10))){ out.campos.homo = rfc.slice(10); out.rfc = rfc; }
     const cp = grab(P, /CODIGO POSTAL\s*:?\s*(\d{5})/); if(cp) out.campos.cp = cp;
-    const ent = grab(P, /NOMBRE DE LA ENTIDAD FEDERATIVA\s*:?\s+([A-Z ]+?)(?:\s+(?:ENTRE CALLE|Y CALLE|CORREO|TEL|AL\s|ACTIVIDADES|CARACTERISTICAS|NOMBRE DE)|$)/);
+    const ent = grab(P, /NOMBRE DE LA ENTIDAD FEDERATIVA\s*:?\s+([A-Z ]+?)(?:\s+(?:ENTRE CALLE|Y CALLE|CORREO|TEL|AL\s|ACTIVIDADES|CARACTERISTICAS|NOMBRE DE|NOMBRE DEL)|$)/);
     const edo = estadoDe(ent); if(edo) out.campos.edo = edo;
-    const mun = grab(P, /NOMBRE DEL MUNICIPIO O DEMARCACION TERRITORIAL\s*:?\s+([A-Z ]+?)\s+(?:NOMBRE DE LA ENTIDAD|ENTRE CALLE|Y CALLE|CORREO|TEL)/);
-    if(mun && edo) out.campos.mun = municipioDe(edo, mun);
+    const mun = grab(P, /NOMBRE DEL MUNICIPIO O DEMARCACION TERRITORIAL\s*:?\s+([A-Z ]+?)(?:\s+(?:NOMBRE DE LA ENTIDAD|ENTRE CALLE|Y CALLE|CORREO|TEL|NOMBRE DE)|$)/);
+    if(mun && edo){ const mm = (CAT.municipios[edo]||[]).find(x=>plain(x)===plain(mun)); if(mm) out.campos.mun = mm; }
   }
-  let names = namesFromCurp(raw, curpRef);
-  if(!names && out.tipo==="INE"){ // renglón de lectura mecánica: PATERNO<MATERNO<<NOMBRE
-    const mrz = T.replace(/\s/g,"").match(/([A-Z]{2,}(?:<[A-Z]+)*)<<([A-Z]+(?:<[A-Z]+)*)/);
-    if(mrz){ const ap = mrz[1].split("<"); names = {pat:ap[0]||"", mat:ap.slice(1).join(" "), nom:mrz[2].split("<").join(" ")}; }
+  if(["CURP","INE","NSS (IMSS)","Constancia SAT"].includes(out.tipo)){
+    let names = namesFromCurp(raw, curpRef);
+    if(!names && out.tipo==="INE"){ // renglón de lectura mecánica de la INE: PATERNO<MATERNO<<NOMBRE
+      const mrz = T.replace(/[ \t]/g,"").match(/([A-Z]{2,}(?:<[A-Z]{2,})*)<<([A-Z]{2,}(?:<[A-Z]{2,})*)/);
+      if(mrz){ const ap = mrz[1].split("<"); names = {pat:ap[0]||"", mat:ap.slice(1).join(" "), nom:mrz[2].split("<").join(" ")}; }
+    }
+    if(!names) names = namesFromLabels(P);
+    if(names && nombreValido(names, curpRef)) Object.assign(out.campos, names);
   }
-  if(!names) names = namesFromLabels(P);
-  if(names) Object.assign(out.campos, names);
-
   const ok = PERMITIDOS[out.tipo] || [];
   for(const k of Object.keys(out.campos)) if(!ok.includes(k)) delete out.campos[k];
   return out;
 }
 
-/* ---- lectura de archivos ---- */
-async function pdfText(buf){
-  const pdf = await pdfjsLib.getDocument({data:buf}).promise; let txt = "";
-  for(let p=1;p<=Math.min(pdf.numPages,4);p++){
-    const pg = await pdf.getPage(p); const tc = await pg.getTextContent(); let lastY=null;
-    for(const it of tc.items){ const y = Math.round(it.transform[5]); if(lastY!==null && Math.abs(y-lastY)>3) txt += "\n"; else if(txt && !txt.endsWith(" ")) txt += " "; txt += it.str; lastY = y; }
-    txt += "\n";
-  }
-  const pg = await pdf.getPage(1); const vp = pg.getViewport({scale:2}); const cv = document.createElement("canvas");
-  cv.width = vp.width; cv.height = vp.height; await pg.render({canvasContext:cv.getContext("2d"), viewport:vp}).promise;
-  return {txt, canvas:cv};
-}
+/* ---- imágenes ---- */
 function imgToCanvas(file){
-  return new Promise((res,rej)=>{ const im = new Image(); im.onload=()=>{ const L=Math.max(im.width,im.height); const s = L>2400 ? 2400/L : (L<1400 ? 1400/L : 1);
-    const cv=document.createElement("canvas"); cv.width=Math.round(im.width*s); cv.height=Math.round(im.height*s); const cx=cv.getContext("2d"); cx.imageSmoothingQuality="high"; cx.drawImage(im,0,0,cv.width,cv.height); URL.revokeObjectURL(im.src); res(cv); };
+  return new Promise((res,rej)=>{ const im = new Image(); im.onload=()=>{ const L=Math.max(im.width,im.height); const s = L>2600 ? 2600/L : (L<1400 ? 1400/L : 1);
+    const cv=document.createElement("canvas"); cv.width=Math.round(im.width*s); cv.height=Math.round(im.height*s); const cx=cv.getContext("2d"); cx.fillStyle="#fff"; cx.fillRect(0,0,cv.width,cv.height); cx.imageSmoothingQuality="high"; cx.drawImage(im,0,0,cv.width,cv.height); URL.revokeObjectURL(im.src); res(cv); };
     im.onerror=()=>rej(new Error("No se pudo abrir la imagen")); im.src=URL.createObjectURL(file); });
 }
 function rotar(cv, ang){
@@ -851,16 +869,21 @@ function rotar(cv, ang){
   const r=document.createElement("canvas"), s=ang%180!==0; r.width = s?cv.height:cv.width; r.height = s?cv.width:cv.height;
   const x=r.getContext("2d"); x.translate(r.width/2, r.height/2); x.rotate(ang*Math.PI/180); x.drawImage(cv, -cv.width/2, -cv.height/2); return r;
 }
+function recortar(cv, x0, y0, x1, y1, esc){
+  x0=Math.max(0,Math.floor(x0)); y0=Math.max(0,Math.floor(y0)); x1=Math.min(cv.width,Math.ceil(x1)); y1=Math.min(cv.height,Math.ceil(y1));
+  const w=x1-x0, h=y1-y0, e=esc||1, c=document.createElement("canvas"); c.width=Math.max(1,Math.round(w*e))+24; c.height=Math.max(1,Math.round(h*e))+24;
+  const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.imageSmoothingQuality="high"; x.drawImage(cv, x0,y0,w,h, 12,12,c.width-24,c.height-24); return c;
+}
 function gris(cv){
   const c2=document.createElement("canvas"); c2.width=cv.width; c2.height=cv.height; const x=c2.getContext("2d"); x.drawImage(cv,0,0);
   const d=x.getImageData(0,0,c2.width,c2.height); return {c2, x, d};
 }
-function prepOcr(cv){ // gris con más contraste
+function prepOcr(cv){
   const {c2,x,d}=gris(cv), a=d.data;
   for(let i=0;i<a.length;i+=4){ let g=0.299*a[i]+0.587*a[i+1]+0.114*a[i+2]; g=Math.max(0,Math.min(255,(g-128)*1.35+128)); a[i]=a[i+1]=a[i+2]=g; }
   x.putImageData(d,0,0); return c2;
 }
-function blancoNegro(cv){ // umbral local: quita brillos, sombras y fondos de color
+function blancoNegro(cv){
   const {c2,x,d}=gris(cv), a=d.data, W=c2.width, H=c2.height, g=new Float32Array(W*H);
   for(let i=0,p=0;i<a.length;i+=4,p++) g[p]=Math.min(a[i],a[i+1],a[i+2])*0.5+(0.299*a[i]+0.587*a[i+1]+0.114*a[i+2])*0.5;
   const I=new Float64Array((W+1)*(H+1));
@@ -878,63 +901,195 @@ async function ocrWorker(){
     logger: m => { if(m.status==="recognizing text" && DOCS._prog) DOCS._prog(m.progress); } });
   return DOCS.ocr;
 }
-async function ocr(cvListo, onProg){ const w = await ocrWorker(); DOCS._prog = onProg||null; const r = await w.recognize(cvListo); DOCS._prog = null; return r.data.text || ""; }
-function puntaje(r){
+async function ocr(cvListo, onProg){ const w = await ocrWorker(); DOCS._prog = onProg||null; const r = await w.recognize(cvListo, {}, {text:true, blocks:false, hocr:false, tsv:false}); DOCS._prog = null; return r.data.text || ""; }
+async function ocrLineas(cvListo, psm){
+  const w = await ocrWorker(); await w.setParameters({tessedit_pageseg_mode: psm});
+  const r = await w.recognize(cvListo, {}, {text:true, blocks:true, hocr:false, tsv:false});
+  const lineas = []; for(const b of (r.data.blocks||[])) for(const p of (b.paragraphs||[])) for(const l of (p.lines||[])) lineas.push({text:l.text, bbox:l.bbox});
+  return {text: r.data.text||"", lineas};
+}
+
+/* Zonas con contenido en una hoja casi vacía (por ejemplo la INE fotocopiada en una esquina) */
+function zonasConContenido(cv){
+  const S = 160/Math.max(cv.width, cv.height), w = Math.max(1,Math.round(cv.width*S)), h = Math.max(1,Math.round(cv.height*S));
+  const c = document.createElement("canvas"); c.width=w; c.height=h; const x=c.getContext("2d"); x.drawImage(cv,0,0,w,h);
+  const a = x.getImageData(0,0,w,h).data, m = new Uint8Array(w*h);
+  for(let i=0,p=0;i<a.length;i+=4,p++) m[p] = (0.299*a[i]+0.587*a[i+1]+0.114*a[i+2]) < 200 ? 1 : 0;
+  const d = new Uint8Array(w*h); // dilatar 2 px
+  for(let y=0;y<h;y++) for(let xx=0;xx<w;xx++){ let v=0; for(let dy=-2;dy<=2&&!v;dy++) for(let dx=-2;dx<=2&&!v;dx++){ const yy=y+dy, x2=xx+dx; if(yy>=0&&yy<h&&x2>=0&&x2<w&&m[yy*w+x2]) v=1; } d[y*w+xx]=v; }
+  const seen = new Uint8Array(w*h), cajas = [];
+  for(let s=0;s<w*h;s++){ if(!d[s]||seen[s]) continue; let x0=w,y0=h,x1=0,y1=0,n=0; const st=[s]; seen[s]=1;
+    while(st.length){ const p=st.pop(), py=(p/w)|0, px=p%w; n++; if(px<x0)x0=px; if(px>x1)x1=px; if(py<y0)y0=py; if(py>y1)y1=py;
+      for(const q of [p-1,p+1,p-w,p+w]){ if(q<0||q>=w*h||seen[q]||!d[q]) continue; if((q===p-1&&px===0)||(q===p+1&&px===w-1)) continue; seen[q]=1; st.push(q); } }
+    const area=(x1-x0+1)*(y1-y0+1); if(area > w*h*0.012) cajas.push({x0:x0/S, y0:y0/S, x1:(x1+1)/S, y1:(y1+1)/S, area}); }
+  const total = cajas.reduce((s,c)=>s+c.area,0);
+  return {cajas: cajas.sort((p,q)=>p.y0-q.y0 || p.x0-q.x0), ocupacion: total/(w*h)};
+}
+
+/* Lectura de una hoja o foto:
+   1) lectura rápida para saber qué documento es y dónde están las etiquetas,
+   2) relectura agrandada solo junto a las etiquetas (lectura dirigida),
+   3) un dato numérico solo se acepta si al menos dos lecturas coinciden. */
+const CLAVES = /SEGURIDAD|\bNSS\b|AFILIACI|CURP|CLAVE|CUENTA|CLABE|TARJETA|MUNICIPIO|DEMARCACI|ENTIDAD|POSTAL|\bRFC\b|SOCIAL ES|NOMBRE|APELLIDO|IDMEX|<</;
+async function lecturaDirigida(cv, d, etiqueta){
+  const vista = cv.width > 2600 ? recortar(cv, 0, 0, cv.width, cv.height, 2600/cv.width) : cv;
+  const k = cv.width / vista.width;
+  d.estado = `${etiqueta}leyendo…`; renderDocs();
+  const r1 = await ocrLineas(prepOcr(vista), "11");
+  const piezas = [r1.text];
+  let tipo = tipoDe(plain(r1.text));
+  if(IGNORADOS.has(tipo)) return {tipo, piezas};
+  const regiones = [];
+  for(const l of r1.lineas){
+    const t = plain(l.text), compacto = (l.text||"").replace(/\s/g,"");
+    if(!(CLAVES.test(t) || /<</.test(l.text||"") || /\d{6,}/.test(compacto) || /[A-Z]{4}\d{6}/.test(compacto))) continue;
+    const h = Math.max(8, l.bbox.y1 - l.bbox.y0);
+    regiones.push({x0:(l.bbox.x0-h)*k, y0:(l.bbox.y0-0.6*h)*k, x1:cv.width, y1:(l.bbox.y1+1.8*h)*k, h:h*k});
+  }
+  const usadas = [];
+  for(const rg of regiones){ if(usadas.some(u=>Math.abs(u.y0-rg.y0)<rg.h*0.8 && Math.abs(u.x0-rg.x0)<rg.h*3)) continue; usadas.push(rg); if(usadas.length>=14) break; }
+  for(let i=0;i<usadas.length;i++){
+    const rg = usadas[i], esc = Math.max(1, Math.min(4, 46/rg.h));
+    d.estado = `${etiqueta}leyendo datos clave (${i+1} de ${usadas.length})…`; renderDocs();
+    const c = recortar(cv, rg.x0, rg.y0, rg.x1, rg.y1, esc);
+    for(const f of [prepOcr, blancoNegro]){ const w = await ocrWorker(); await w.setParameters({tessedit_pageseg_mode:"6"}); piezas.push(await ocr(f(c))); }
+  }
+  tipo = tipoDe(plain(piezas.join("\n")));
+  return {tipo, piezas};
+}
+const CP_ESTADO = [[1,16,"Ciudad de México"],[20,20,"Aguascalientes"],[21,22,"Baja California"],[23,23,"Baja California Sur"],[24,24,"Campeche"],[25,27,"Coahuila"],[28,28,"Colima"],[29,30,"Chiapas"],[31,33,"Chihuahua"],[34,35,"Durango"],[36,38,"Guanajuato"],[39,41,"Guerrero"],[42,43,"Hidalgo"],[44,49,"Jalisco"],[50,57,"México"],[58,61,"Michoacán"],[62,62,"Morelos"],[63,63,"Nayarit"],[64,67,"Nuevo León"],[68,71,"Oaxaca"],[72,75,"Puebla"],[76,76,"Querétaro"],[77,77,"Quintana Roo"],[78,79,"San Luis Potosí"],[80,82,"Sinaloa"],[83,85,"Sonora"],[86,86,"Tabasco"],[87,89,"Tamaulipas"],[90,90,"Tlaxcala"],[91,96,"Veracruz"],[97,97,"Yucatán"],[98,99,"Zacatecas"]];
+const estadoDeCP = cp => { const n = +String(cp).slice(0,2); const e = CP_ESTADO.find(([a,b])=>n>=a&&n<=b); return e ? e[2] : ""; };
+function votar(tipo, piezas){
+  const todo = piezas.join("\n");
+  const r = parseDoc(todo, tipo);
+  const parciales = piezas.map(p=>parseDoc(p, tipo).campos);
+  const votos = k => parciales.filter(c=>c[k] && same(c[k], r.campos[k])).length;
+  // CLABE válidas que aparecen en cualquier lectura (sirven para confirmar la cuenta y al revés)
+  const clabes = new Set(); piezas.forEach(p=>{ (norm(p).match(/\d(?:[ \-]?\d){17,21}/g)||[]).forEach(s=>{ const d=s.replace(/\D/g,""); if(d.length===18 && clabeOk(d)) clabes.add(d); }); });
+  const cuentasEtiq = new Set(parciales.map(c=>c.cuenta).filter(Boolean));
+  const confirmado = k => {
+    const v = r.campos[k]; if(!v) return true;
+    if(votos(k) >= 2) return true;
+    if(k==="curp") return curpDV(v)===v[17] && !!curpInfo(v) && !!(r.campos.pat && r.campos.nom); // CURP válida y con nombre que cuadra
+    if(["pat","mat","nom"].includes(k)) return !!(r.campos.curp || ($("curp").value||"").length===18); // ya validado contra la CURP
+    if(k==="homo") return !!r.rfc; // el RFC leído empieza igual que la CURP
+    if(k==="cp" || k==="edo") return !!(r.campos.cp && r.campos.edo && estadoDeCP(r.campos.cp)===r.campos.edo);
+    if(k==="mun") return true; // solo se acepta si existe en el catálogo de INEGI de ese estado
+    if(k==="cuenta"){
+      if(v.length===10 || v.length===11) return [...clabes].some(c=>c.slice(17-v.length,17)===v);
+      if(v.length===18) return [...cuentasEtiq].some(c=>c!==v && v.slice(17-c.length,17)===c);
+    }
+    return false;
+  };
+  const dudosos = Object.keys(r.campos).filter(k=>!["tiene","banco"].includes(k) && !confirmado(k));
+  return {r, dudosos};
+}
+function puntajeR(r){
   const c = r.campos; let s = Object.keys(c).length;
   if(c.curp) s += 3; if(c.nss) s += (c.nss.length===11 && luhnOk(c.nss)) ? 4 : 1;
   if(c.cuenta){ const L=c.cuenta.length; s += (L===18&&clabeOk(c.cuenta))||(L===16&&luhnOk(c.cuenta))||L===10||L===11 ? 4 : 1; }
   if(r.tipo!=="Documento") s += 1; return s;
 }
-/* Lee la foto varias veces (modos, blanco y negro, giros). Un dato solo queda "seguro" si dos lecturas coinciden. */
-async function leerFoto(cv, d){
-  const plan = [[0,"normal","11"],[0,"bn","11"],[0,"normal","3"],[90,"normal","11"],[270,"normal","11"],[90,"bn","11"],[270,"bn","11"],[180,"normal","11"],[0,"bn","3"]];
-  const w = await ocrWorker(); const intentos = []; let best = null;
-  const votos = (k, v) => intentos.filter(a=>a.r.campos[k] && same(a.r.campos[k], v)).length;
-  const confirmado = x => ["curp","nss","cuenta"].filter(k=>x.r.campos[k]).every(k=>votos(k, x.r.campos[k])>=2);
+async function leerPagina(cv, d, etiqueta){
+  const w = await ocrWorker();
   try{
-    for(let k=0;k<plan.length;k++){
-      const [ang, modo, psm] = plan[k];
-      const base = rotar(cv, ang), listo = modo==="bn" ? blancoNegro(base) : prepOcr(base);
-      d.estado = k===0 ? "Leyendo foto… 0%" : `Confirmando lectura (intento ${k+1} de ${plan.length})…`; renderDocs();
-      await w.setParameters({tessedit_pageseg_mode: psm});
-      const tx = await ocr(listo, k===0 ? (p=>{ d.estado=`Leyendo foto… ${Math.round(p*100)}%`; renderDocs(); }) : null);
-      const r = parseDoc(tx); const it = {ang, tx, r, s:puntaje(r), base}; intentos.push(it);
-      if(!best || it.s > best.s) best = it;
-      if(k>=1 && best.s >= 8 && confirmado(best)) break;
+    let L = await lecturaDirigida(cv, d, etiqueta), mejor = {...votar(L.tipo, L.piezas), cv, tipo:L.tipo, piezas:L.piezas};
+    if(IGNORADOS.has(L.tipo)) return {tipo:L.tipo, r:{tipo:L.tipo, campos:{}, avisos:[], alt:[]}, dudosos:[], cv};
+    // hoja casi vacía con cosas pegadas (INE fotocopiada, recortes): leer cada zona agrandada
+    if(puntajeR(mejor.r) < 5){
+      const z = zonasConContenido(cv);
+      if(z.cajas.length && z.ocupacion < 0.55){
+        const piezas = [];
+        for(let i=0;i<Math.min(z.cajas.length,5);i++){
+          const b = z.cajas[i], esc = Math.max(1, Math.min(3, 1800/(b.x1-b.x0)));
+          const c = recortar(cv, b.x0-8, b.y0-8, b.x1+8, b.y1+8, esc);
+          d.estado = `${etiqueta}leyendo zona ${i+1} de ${Math.min(z.cajas.length,5)}…`; renderDocs();
+          const Lz = await lecturaDirigida(c, d, etiqueta); piezas.push(...Lz.piezas);
+        }
+        const tipoZ = tipoDe(plain(piezas.join("\n")));
+        if(!IGNORADOS.has(tipoZ)){ const v = {...votar(tipoZ, piezas), cv, tipo:tipoZ}; if(puntajeR(v.r) > puntajeR(mejor.r)) mejor = v; }
+      }
     }
-  } finally { await w.setParameters({tessedit_pageseg_mode: "3"}); }
-  const dudosos = Object.keys(best.r.campos).filter(k=>!["tiene","banco"].includes(k) && votos(k, best.r.campos[k])<2);
-  return {txt:best.tx, cv:best.base, r:best.r, dudosos};
+    // foto de lado o de cabeza
+    if(puntajeR(mejor.r) < 4){
+      for(const ang of [90, 270, 180]){
+        const rc = rotar(cv, ang); const Lr = await lecturaDirigida(rc, d, `${etiqueta}girada ${ang}° · `);
+        if(IGNORADOS.has(Lr.tipo)) continue;
+        const v = {...votar(Lr.tipo, Lr.piezas), cv:rc, tipo:Lr.tipo};
+        if(puntajeR(v.r) > puntajeR(mejor.r)) mejor = v;
+        if(puntajeR(mejor.r) >= 6) break;
+      }
+    }
+    // último recurso para fotos difíciles: leer la imagen completa con varios modos y giros, y votar
+    if(puntajeR(mejor.r) < 4){
+      let k = 0;
+      for(const ang of [0, 90, 270]){
+        const base = rotar(cv, ang), piezas = [];
+        for(const [f, psm] of [[prepOcr,"11"],[blancoNegro,"11"],[prepOcr,"3"],[blancoNegro,"3"]]){
+          k++; d.estado = `${etiqueta}foto difícil: intento ${k} de 12…`; renderDocs();
+          await w.setParameters({tessedit_pageseg_mode: psm}); piezas.push(await ocr(f(base)));
+        }
+        const tp = tipoDe(plain(piezas.join("\n"))); if(IGNORADOS.has(tp)) continue;
+        const v = {...votar(tp, piezas), cv:base, tipo:tp, piezas};
+        if(puntajeR(v.r) > puntajeR(mejor.r)) mejor = v;
+        if(puntajeR(mejor.r) >= 6) break;
+      }
+    }
+    return {tipo: mejor.tipo, r: mejor.r, dudosos: mejor.dudosos, cv: mejor.cv, piezas: mejor.piezas||[]};
+  } finally { await w.setParameters({tessedit_pageseg_mode:"3"}); }
 }
 
+/* ---- archivos: PDF hoja por hoja, o foto ---- */
+async function terminarDoc(d, r, dudosos){
+  d.tipo = r.tipo; d.campos = r.campos; d.alt = r.alt||[]; d.avisos = r.avisos||[]; d.rfc = r.rfc; d.dudosos = (dudosos||[]).filter(k=>d.campos[k]);
+  if(IGNORADOS.has(d.tipo)){ d.estado = "Se ignora (no se usa para el alta)"; return; }
+  const NOMB = {nss:"el NSS", cuenta:"la cuenta", curp:"la CURP"};
+  for(const k of ["nss","cuenta","curp"]) if(d.dudosos.includes(k)){
+    delete d.campos[k]; if(k==="cuenta"){ delete d.campos.tiene; delete d.campos.banco; }
+    d.avisos = d.avisos.filter(a=>!(k==="nss" && /NSS/.test(a)) && !(k==="cuenta" && /cuenta/i.test(a)));
+    d.avisos.push(`No pude leer ${NOMB[k]} con seguridad (las lecturas no coincidieron). Captura el dato viendo la foto o usa «Recortar y leer».`);
+  }
+  d.dudosos = d.dudosos.filter(k=>d.campos[k]);
+  if(d.dudosos.length) d.avisos.push("Lo que quedó en naranja no se leyó con seguridad (dos lecturas no coincidieron): compáralo contra la foto.");
+  const n = Object.keys(d.campos).length;
+  d.estado = n ? `${n} dato${n===1?"":"s"} leído${n===1?"":"s"}` + (d.avisos.length ? " · revisar" : "") : (d.tipo==="Documento" ? "No reconocí este documento; se ignora." : "No encontré datos. Usa «Recortar y leer» o captura viendo la foto.");
+  aplicarCampos(d);
+}
 async function procesarArchivo(file){
+  if(/\.(heic|heif)$/i.test(file.name) || /heic|heif/.test(file.type)){
+    const d = {name:file.name, estado:"No se pudo leer: las fotos HEIC de iPhone no se pueden leer; mándala como JPG o toma captura de pantalla", tipo:"", campos:{}, preview:"", alt:[], avisos:[]};
+    DOCS.list.push(d); DOCS.sel = DOCS.list.length-1; renderDocs(); return;
+  }
+  if(file.type==="application/pdf" || /\.pdf$/i.test(file.name)){
+    if(!window.pdfjsLib){ toast("El lector de PDF no se cargó"); return; }
+    let pdf; try{ pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise; }catch(e){ toast("No se pudo abrir el PDF"); return; }
+    const N = pdf.numPages;
+    for(let p=1;p<=N;p++){
+      const d = {name: N>1 ? `${file.name} · hoja ${p} de ${N}` : file.name, estado:"En espera…", tipo:"", campos:{}, preview:"", alt:[], avisos:[]};
+      DOCS.list.push(d); DOCS.sel = DOCS.list.length-1; renderDocs();
+      try{
+        const pg = await pdf.getPage(p); const tc = await pg.getTextContent(); let txt="", lastY=null;
+        for(const it of tc.items){ const y = Math.round(it.transform[5]); if(lastY!==null && Math.abs(y-lastY)>3) txt += "\n"; else if(txt && !txt.endsWith(" ")) txt += " "; txt += it.str; lastY = y; }
+        const vp1 = pg.getViewport({scale:1}); const esc = Math.min(4.2, 2500/vp1.width);
+        const vp = pg.getViewport({scale:esc}); const cv = document.createElement("canvas"); cv.width=vp.width; cv.height=vp.height;
+        const cx = cv.getContext("2d"); cx.fillStyle="#fff"; cx.fillRect(0,0,cv.width,cv.height);
+        await pg.render({canvasContext:cx, viewport:vp}).promise;
+        d.cv = cv; d.preview = recortar(cv,0,0,cv.width,cv.height, Math.min(1, 1100/cv.width)).toDataURL("image/jpeg",0.8);
+        if(plain(txt).length >= 40){ await terminarDoc(d, parseDoc(txt), []); }
+        else { d.foto = true; const L = await leerPagina(cv, d, N>1 ? `Hoja ${p} de ${N}: ` : ""); d.piezas = L.piezas; if(L.cv!==cv){ d.cv=L.cv; d.preview = recortar(L.cv,0,0,L.cv.width,L.cv.height, Math.min(1,1100/L.cv.width)).toDataURL("image/jpeg",0.8); } await terminarDoc(d, L.r, L.dudosos); }
+      }catch(e){ d.estado = "No se pudo leer: " + (e.message||e); }
+      renderDocs(); render();
+    }
+    return;
+  }
   const d = {name:file.name, estado:"Leyendo…", tipo:"", campos:{}, preview:"", alt:[], avisos:[]};
   DOCS.list.push(d); DOCS.sel = DOCS.list.length-1; renderDocs();
   try{
-    let txt="", cv=null;
-    if(file.type==="application/pdf" || /\.pdf$/i.test(file.name)){
-      if(!window.pdfjsLib) throw new Error("El lector de PDF no se cargó");
-      const r = await pdfText(await file.arrayBuffer()); txt = r.txt; cv = r.canvas;
-      if(plain(txt).length < 40){ const b = await leerFoto(cv, d); txt = b.txt; cv = b.cv; d.foto=true; d.r = b.r; d.dudosos = b.dudosos; }
-    } else if(/\.(heic|heif)$/i.test(file.name) || /heic|heif/.test(file.type)) throw new Error("las fotos HEIC de iPhone no se pueden leer; mándala como JPG o toma captura de pantalla");
-    else if(/^image\//.test(file.type)){
-      cv = await imgToCanvas(file); d.preview = cv.toDataURL("image/jpeg",0.85); renderDocs();
-      const b = await leerFoto(cv, d); txt = b.txt; cv = b.cv; d.foto=true; d.r = b.r; d.dudosos = b.dudosos;
-    } else throw new Error("Solo PDF o fotos (JPG, PNG)");
-    d.cv = cv; d.preview = cv.toDataURL("image/jpeg",0.85);
-    const r = d.r || parseDoc(txt); delete d.r; d.tipo = r.tipo; d.campos = r.campos; d.alt = r.alt||[]; d.avisos = r.avisos||[]; d.rfc = r.rfc;
-    d.dudosos = (d.dudosos||[]).filter(k=>d.campos[k]);
-    const NOMB = {nss:"el NSS", cuenta:"la cuenta", curp:"la CURP"};
-    for(const k of ["nss","cuenta","curp"]) if(d.dudosos.includes(k)){
-      delete d.campos[k]; if(k==="cuenta"){ delete d.campos.tiene; delete d.campos.banco; }
-      d.avisos = d.avisos.filter(a=>!(k==="nss" && /NSS/.test(a)) && !(k==="cuenta" && /cuenta/i.test(a)));
-      d.avisos.push(`No pude leer ${NOMB[k]} con seguridad (las lecturas no coincidieron). Captura el dato viendo la foto o usa «Recortar y leer».`);
-    }
-    d.dudosos = d.dudosos.filter(k=>d.campos[k]);
-    if(d.dudosos.length) d.avisos.push("Lo que quedó en naranja no se leyó con seguridad (dos lecturas no coincidieron): compáralo contra la foto.");
-    const n = Object.keys(d.campos).length;
-    d.estado = n ? `${n} dato${n===1?"":"s"} leído${n===1?"":"s"}` + (d.avisos.length ? " · revisar" : "") : "No encontré datos. Usa «Recortar y leer» o captura viendo la foto.";
-    aplicarCampos(d);
+    if(!/^image\//.test(file.type)) throw new Error("Solo PDF o fotos (JPG, PNG)");
+    const cv = await imgToCanvas(file); d.cv = cv; d.preview = cv.toDataURL("image/jpeg",0.85); d.foto = true; renderDocs();
+    const L = await leerPagina(cv, d, "");
+    d.cv = L.cv; d.preview = L.cv.toDataURL("image/jpeg",0.85);
+    await terminarDoc(d, L.r, L.dudosos);
   }catch(e){ d.estado = "No se pudo leer: " + (e.message||e); }
   renderDocs(); render();
 }
@@ -949,6 +1104,8 @@ function aplicarCampos(d){
     const el = $(k); if(!el || !v) continue;
     const actual = el.value;
     const dud = (d.dudosos||[]).includes(k);
+    if(actual && AUTO[k] && AUTO[k].dudoso && !dud && !same(actual, v)){ setField(k, v); AUTO[k] = {src, dudoso:false}; delete CONFL[k]; continue; }
+    if(actual && AUTO[k] && AUTO[k].dudoso && !dud && same(actual, v)){ AUTO[k] = {src:AUTO[k].src+" + "+src, dudoso:false}; continue; }
     if(!actual){ setField(k, v); AUTO[k] = {src, dudoso:dud}; }
     else if(same(actual, v)){ if(!AUTO[k]) AUTO[k] = {src}; else if(!AUTO[k].src.includes(src)) AUTO[k].src += " + " + src; }
     else { (CONFL[k] = CONFL[k] || []).push({src, valor:v}); }

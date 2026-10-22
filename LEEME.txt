@@ -1,5 +1,21 @@
-ALTAS DE OBRA - app para Google Chrome (funciona sin internet) - versión 3
-==========================================================================
+ALTAS DE OBRA - app para Google Chrome (funciona sin internet) - versión 3.2
+============================================================================
+Link de la app: https://vdann1.github.io/altas-obra/
+
+NOVEDADES VERSIÓN 3.2
+- PDF escaneado con TODA la documentación junta: se lee hoja por hoja y cada hoja
+  se reconoce sola (INE, CURP, NSS, SAT, banco). Cada hoja aparece en la lista
+  como "archivo · hoja X de N".
+- Lectura dirigida: busca las etiquetas (NSS, CURP, CUENTA, CLABE, C.P., etc.)
+  y relee de cerca solo esa zona. Tarda aprox. 10-25 segundos por hoja.
+- Se IGNORAN el acta de nacimiento y el recibo de luz (CFE): no llenan nada.
+- Nombres y apellidos solo se llenan si cuadran con la CURP.
+- Cuentas con espacios (155 745 2368) o puestas en una tabla se confirman contra la CLABE.
+- Si un número no se pudo leer con seguridad, el campo queda VACÍO con aviso.
+  Nunca se inventa ni se corrige un dígito.
+
+NOVEDADES VERSIÓN 3.1
+- Encabezado fijo: Obra, Supervisor y Fecha ya no se mueven al cambiar el tema.
 
 NOVEDADES VERSIÓN 3
 - Cada documento llena solo lo suyo:
@@ -30,11 +46,11 @@ COLORES EN LA FICHA
   NARANJA .. lectura dudosa o dos documentos no coinciden.
   ROJO ..... incompleto o mal (no cuadra): corrígelo.
 
-ACTUALIZAR EN GITHUB (de v2 a v3 solo cambian 3 archivos)
+ACTUALIZAR EN GITHUB (solo cambian 3 archivos)
 1. Repositorio altas-obra > Add file > Upload files.
 2. Arrastra: index.html, sw.js y LEEME.txt.
 3. Commit changes. Espera a que el punto amarillo se vuelva palomita verde (1-3 min).
-4. Abre la app en Chrome y recarga con Ctrl+F5. Abajo debe decir "versión v3".
+4. Abre la app en Chrome y recarga con Ctrl+F5. Abajo debe decir "versión v3.2".
 
 INSTALARLA EN CADA LAPTOP (cada supervisor, una vez, con internet)
 1. Abrir https://vdann1.github.io/altas-obra/ en Google Chrome.

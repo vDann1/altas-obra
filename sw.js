@@ -1,5 +1,5 @@
 // Altas de Obra: guarda la app en la computadora para que funcione sin internet.
-const CACHE = "altas-obra-v2";
+const CACHE = "altas-obra-v3";
 const FILES = ["./", "index.html", "manifest.webmanifest", "vendor/exceljs.min.js", "vendor/pdf/pdf.min.js", "vendor/pdf/pdf.worker.min.js", "vendor/ocr/tesseract.min.js", "vendor/ocr/worker.min.js", "vendor/ocr/lang/spa.traineddata.gz", "vendor/ocr/tesseract-core-simd-lstm.wasm.js", "vendor/ocr/tesseract-core-lstm.wasm.js", "vendor/fonts/barlow-semi-condensed-latin-500-normal.woff2", "vendor/fonts/barlow-semi-condensed-latin-600-normal.woff2", "vendor/fonts/source-sans-3-latin-400-normal.woff2", "vendor/fonts/source-sans-3-latin-600-normal.woff2", "vendor/fonts/jetbrains-mono-latin-400-normal.woff2", "vendor/fonts/jetbrains-mono-latin-500-normal.woff2", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

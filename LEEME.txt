@@ -1,43 +1,48 @@
-ALTAS DE OBRA - app para Google Chrome (funciona sin internet) - versión 2
+ALTAS DE OBRA - app para Google Chrome (funciona sin internet) - versión 3
 ==========================================================================
 
-ACTUALIZAR EN GITHUB (ya la tienes publicada)
-1. Descomprime este ZIP. Te queda la carpeta "altas-obra-app".
-2. En GitHub, entra a tu repositorio altas-obra > Add file > Upload files.
-3. Abre la carpeta "altas-obra-app", selecciona TODO lo de adentro (Ctrl+A) y arrástralo.
-   Reemplaza lo anterior y agrega lo nuevo.
-4. Commit changes. En 1-2 minutos se actualiza el link (https://vdann1.github.io/altas-obra/).
-5. Las laptops toman la versión nueva solas la próxima vez que abran la app con internet.
-   Si no ves los cambios: cierra la app, ábrela con internet y recarga (F5).
+NOVEDADES VERSIÓN 3
+- Cada documento llena solo lo suyo:
+    CURP .................. nombre, apellidos, CURP
+    Comprobante NSS IMSS .. NSS, CURP, nombre y apellidos
+    Constancia del SAT .... homoclave, domicilio (C.P., estado, municipio), nombre, CURP
+    INE ................... nombre, apellidos, CURP
+    Banco ................. solo cuenta / CLABE / tarjeta y banco
+- NSS: se pone SOLO lo que se lee tal cual. Nunca se corrige ni se calcula ningún dígito.
+  Si faltan dígitos o no cuadra su dígito verificador, sale en ROJO para revisarlo.
+  Se compara contra el año de nacimiento de la CURP.
+- Bancos (BBVA, Santander y otros): preferencia CUENTA -> CLABE -> TARJETA.
+  Solo números con su etiqueta o que cuadren su dígito verificador.
+  Ignora teléfono, celular, empresa, cliente, sucursal y códigos de barras.
+  Revisa que la cuenta coincida con la CLABE; si la cuenta viene cortada o no coincide, usa la CLABE.
+  Acepta cuentas con guiones (56-XXXXXXXX-X). Muestra "También encontré..." con los otros números.
+  Avisa si el documento parece ser de otra persona.
+- Fotos: se leen varias veces (modos, blanco y negro, giros). Un NSS, cuenta o CURP leído
+  de foto SOLO se llena si dos lecturas coinciden. Si no, el campo queda vacío y aparece
+  el aviso "No pude leer ... con seguridad".
+- Botón "Recortar y leer un número": dibujas un recuadro sobre el número en la foto
+  y eliges si es NSS, cuenta/CLABE/tarjeta o CURP. Se lee 12 veces y solo se llena
+  si al menos 3 lecturas coinciden.
+- Se puede pegar una captura de pantalla con Ctrl+V en la pestaña Captura.
+
+COLORES EN LA FICHA
+  AZUL ..... leído del documento: compáralo contra la imagen.
+  NARANJA .. lectura dudosa o dos documentos no coinciden.
+  ROJO ..... incompleto o mal (no cuadra): corrígelo.
+
+ACTUALIZAR EN GITHUB (de v2 a v3 solo cambian 3 archivos)
+1. Repositorio altas-obra > Add file > Upload files.
+2. Arrastra: index.html, sw.js y LEEME.txt.
+3. Commit changes. Espera a que el punto amarillo se vuelva palomita verde (1-3 min).
+4. Abre la app en Chrome y recarga con Ctrl+F5. Abajo debe decir "versión v3".
 
 INSTALARLA EN CADA LAPTOP (cada supervisor, una vez, con internet)
-1. Abrir el link en Google Chrome.
-2. Dar clic en "Instalar app" (arriba a la derecha) o en el ícono de instalar
-   que aparece al final de la barra de direcciones.
+1. Abrir https://vdann1.github.io/altas-obra/ en Google Chrome.
+2. Clic en "Instalar app" o en el ícono de instalar de la barra de direcciones.
 3. Queda un ícono "Altas de Obra" en el escritorio. De ahí en adelante abre sin internet.
-   La primera vez tarda un poco más porque descarga el lector de fotos (~12 MB).
-
-USO DIARIO
-1. Arriba: obra, supervisor y fecha. El botón "Tema" cambia entre claro, oscuro y automático.
-2. Captura:
-   - Opcional: "Elegir archivos" o arrastrar documentos (PDF de CURP, Constancia del SAT,
-     foto de INE, carátula o estado de cuenta del banco). Se leen sin internet y llenan campos.
-     AZUL = leído del documento: compáralo contra la imagen (clic para agrandar).
-     NARANJA = dos documentos no coinciden: revisa cuál es el correcto.
-     Los documentos NO se guardan.
-   - Completar lo que falte, revisar el cuadro REVISIÓN y dar GUARDAR.
-   - NUEVA ALTA limpia la ficha.
-3. Lista: ver a todos, corregir o borrar.
-4. Generar Excel: DESCARGAR EXCEL y mandarlo por correo.
-   Después de enviarlo: VACIAR LISTA (ya la envié) para empezar el siguiente lote.
-
-CUENTA / TARJETA / CLABE
-- Se puede escribir o pegar con guiones o espacios; se quitan solos.
-- Abajo del campo dice cuántos dígitos lleva y si es válido.
-- Tarjeta (16) y CLABE (18) se revisan con su dígito verificador.
-- Con la CLABE el banco se pone solo y avisa si no coincide con el elegido.
 
 IMPORTANTE
 - Los datos se guardan SOLO en esa laptop y en ese Chrome. No se suben a internet.
 - No borrar "datos de navegación / cookies" de Chrome antes de descargar el Excel.
-- Las fotos se leen mejor derechas, sin brillo y enfocadas. Siempre revisar los campos azules.
+- Fotos de iPhone en HEIC no se leen: mandarlas como JPG o tomar captura de pantalla.
+- Siempre revisar los campos de color contra la foto antes de guardar.

@@ -88,12 +88,21 @@ legend{font:600 15px var(--display);letter-spacing:.06em;text-transform:uppercas
 .dchip span{font-size:12px;color:var(--muted)}
 .dchip.on{border-color:var(--info);box-shadow:inset 3px 0 0 var(--info)}
 #doc-prev img{display:block;width:100%;max-height:340px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:6px;cursor:zoom-in}
+.f input.auto.err,.f input.mis.err,.f select.auto.err{border-color:var(--bad);background:var(--bad-bg)}
 #doc-coinc{margin-top:10px;font-size:13px;color:var(--warn);background:var(--warn-bg);border-radius:7px;padding:8px 10px}
 #doc-coinc ul{margin:4px 0 0;padding-left:18px}
 .legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--muted);margin-top:8px}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px}
 .zoom{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:30;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 16px;cursor:zoom-out}
 .zoom img{max-width:100%;max-height:100%;background:#fff;border-radius:6px}
+.doc-aviso{margin-top:8px;font-size:13px;color:var(--bad);background:var(--bad-bg);border-radius:7px;padding:6px 10px}
+.doc-aviso p{margin:2px 0}
+.crop{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:31;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 16px}
+.crop-box{background:var(--surface);color:var(--fg);border-radius:12px;padding:14px;max-width:min(1100px,100%);max-height:100%;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.crop-t{margin:0;font-size:14px}
+.crop-stage{position:relative;align-self:center;touch-action:none;cursor:crosshair;user-select:none;line-height:0}
+.crop-stage img{max-width:100%;max-height:62vh;background:#fff;border-radius:6px;pointer-events:none}
+#crop-sel{position:absolute;border:2px solid var(--accent);background:rgba(240,180,41,.18);pointer-events:none}
 aside.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px);display:flex;flex-direction:column;gap:14px}
 @media (max-width:860px){aside.side{position:static}}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
@@ -167,12 +176,12 @@ h2.sec{font:600 18px var(--display);letter-spacing:.04em;margin:18px 0 8px}
   <div class="grid">
   <form id="frm" autocomplete="off" novalidate>
     <div class="dropzone" id="dropzone">
-      <p><b>Subir documentos</b> (opcional): CURP y Constancia del SAT en PDF, foto de la INE, carátula o estado de cuenta del banco. Se leen aquí mismo, sin internet, y llenan los campos. Arrástralos aquí o:</p>
+      <p><b>Subir documentos</b> (opcional): CURP y Constancia del SAT en PDF, foto de la INE, carátula o estado de cuenta del banco. Se leen aquí mismo, sin internet, y llenan los campos. Arrástralos aquí, pega una captura con <b>Ctrl+V</b> o:</p>
       <label class="b" for="doc-file" style="background:var(--brand);color:var(--brand-fg);border-color:var(--brand)">Elegir archivos</label>
       <input id="doc-file" type="file" accept="application/pdf,image/*" multiple hidden>
     </div>
     <fieldset><legend>Datos del trabajador</legend><div class="fields">
-      <div class="f"><label for="nss">NSS</label><input id="nss" class="id" inputmode="numeric" placeholder="11 dígitos"></div>
+      <div class="f"><label for="nss">NSS</label><input id="nss" class="id" inputmode="numeric" placeholder="11 dígitos"><span class="hint" id="nss-info"></span></div>
       <div class="f"><label for="pat">Apellido paterno</label><input id="pat" data-up></div>
       <div class="f"><label for="mat">Apellido materno</label><input id="mat" data-up></div>
       <div class="f"><label for="nom">Nombre(s)</label><input id="nom" data-up></div>
@@ -217,9 +226,9 @@ h2.sec{font:600 18px var(--display);letter-spacing:.04em;margin:18px 0 8px}
       <div id="doc-prev"></div>
       <p class="hint" id="doc-name" style="margin:6px 0 0;overflow-wrap:anywhere"></p>
       <div id="doc-coinc" hidden></div>
-      <div class="legend"><span><i style="background:var(--info-bg);border:1px solid var(--info)"></i>Leído del documento</span><span><i style="background:var(--warn-bg);border:1px solid var(--warn)"></i>No coincide</span></div>
+      <div class="legend"><span><i style="background:var(--info-bg);border:1px solid var(--info)"></i>Leído del documento</span><span><i style="background:var(--warn-bg);border:1px solid var(--warn)"></i>Dudoso o no coincide</span><span><i style="background:var(--bad-bg);border:1px solid var(--bad)"></i>Incompleto o mal</span></div>
       <p class="hint" style="margin:8px 0 0">Compara cada campo azul contra la imagen (clic para agrandar). Los documentos no se guardan.</p>
-      <div class="btns" style="margin-top:8px"><button class="b" id="doc-clear" type="button">Quitar documentos</button></div>
+      <div class="btns" style="margin-top:8px"><button class="b" id="doc-crop" type="button" hidden>Recortar y leer un número</button><button class="b" id="doc-clear" type="button">Quitar documentos</button></div>
     </div>
     <div class="card"><h3>Sale de la CURP</h3>
       <dl class="auto">
@@ -285,13 +294,18 @@ h2.sec{font:600 18px var(--display);letter-spacing:.04em;margin:18px 0 8px}
   </table></div>
 </section>
 </main>
-<footer class="wrap" style="padding-block:0 28px;font-size:12px;color:var(--muted)">Altas de Obra · versión v2</footer>
+<footer class="wrap" style="padding-block:0 28px;font-size:12px;color:var(--muted)">Altas de Obra · versión v3</footer>
 
 <datalist id="dl-puestos"></datalist>
 <datalist id="dl-centros"></datalist>
 <datalist id="dl-mun"></datalist>
 <div class="toast" id="toast" hidden role="status"></div>
 <div class="zoom" id="zoom" hidden><img id="zoom-img" alt="Documento ampliado"></div>
+<div class="crop" id="crop" hidden role="dialog" aria-label="Recortar y leer un número"><div class="crop-box">
+  <p class="crop-t"><b>Recortar y leer:</b> arrastra un recuadro <b>solo sobre el número</b> y elige qué es.</p>
+  <div class="crop-stage" id="crop-stage"><img id="crop-img" alt="Documento para recortar" draggable="false"><div id="crop-sel" hidden></div></div>
+  <div class="btns" id="crop-btns"><button class="b primary" type="button" data-as="nss">Es el NSS</button><button class="b primary" type="button" data-as="cuenta">Es cuenta / CLABE / tarjeta</button><button class="b primary" type="button" data-as="curp">Es la CURP</button><button class="b" type="button" data-as="x">Cancelar</button></div>
+  <p class="hint" id="crop-msg" style="margin:8px 0 0"></p></div></div>
 
 <script src="vendor/exceljs.min.js"></script>
 <script src="vendor/pdf/pdf.min.js"></script>
@@ -369,7 +383,9 @@ function nameMatches(r){
 function revisar(r, idx){
   const f=[], bad=new Set();
   const add=(msg,...ids)=>{f.push(msg); ids.forEach(i=>bad.add(i));};
-  if((r.nss||"").length!==11) add("NSS (11 números)","nss");
+  if((r.nss||"").length!==11) add((r.nss||"").length ? `El NSS tiene ${r.nss.length} dígitos; debe tener 11` : "NSS (11 números)","nss");
+  else if(!luhnOk(r.nss)) add("NSS con error de dedo: no cuadra su dígito verificador","nss");
+  else if((r.curp||"").length===18 && /^\d{6}/.test(r.curp.slice(4)) && r.nss.slice(4,6)!==r.curp.slice(4,6)) add(`Revisa: el año de nacimiento del NSS (${r.nss.slice(4,6)}) no coincide con la CURP (${r.curp.slice(4,6)})`,"nss");
   else if(state.rows.some((x,i)=>i!==idx && x.nss===r.nss)) add("NSS ya capturado en la lista","nss");
   if(!r.pat||!r.nom) add("Nombre", !r.pat?"pat":"nom");
   ["pat","mat","nom"].forEach(k=>{ if(!okName(r[k])) add("Nombre con minúsculas, acentos, números o símbolos",k); if(r[k]&&r[k]!==r[k].trim().replace(/\s+/g," ")) add("Espacios de más en el nombre",k); });
@@ -405,7 +421,7 @@ const vacio = r => !r.nss && !r.pat && !r.nom && !r.curp;
 /* ---------- formulario ---------- */
 function fill(sel, arr, blank=true){ sel.innerHTML=(blank?'<option value=""></option>':"")+arr.map(v=>`<option>${esc(v)}</option>`).join(""); }
 function readForm(){ const r={}; FIELDS.forEach(k=>r[k]=($(k).value||"").trim()===""?"":$(k).value); ["nss","tel","cuenta","btel","cp"].forEach(k=>r[k]=(r[k]||"").replace(/\D/g,"")); return r; }
-function writeForm(r){ FIELDS.forEach(k=>$(k).value=r?.[k]??""); refreshMun(); if(window._updCuenta) window._updCuenta(); }
+function writeForm(r){ FIELDS.forEach(k=>$(k).value=r?.[k]??""); refreshMun(); if(window._updCuenta) window._updCuenta(); if(window._updNss) window._updNss(); }
 function refreshMun(){ const e=$("edo").value; $("dl-mun").innerHTML = (CAT.municipios[e]||[]).map(m=>`<option value="${esc(m)}"></option>`).join(""); $("mun").placeholder = e ? "Elige o escribe" : "Primero elige el estado"; }
 const fmt = d => d ? d.toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"}) : "—";
 
@@ -703,52 +719,113 @@ function municipioDe(edo, txt){
 }
 function grab(T, re){ const m = T.match(re); return m ? m[1].replace(/\s+/g," ").trim() : ""; }
 
+/* NSS: solo lo que se lee tal cual. Nunca se corrige ni se calcula ningún dígito. */
+function findNss(raw, curp){
+  const U = norm(raw); let m;
+  const runs = []; const re = /(?<!\d[ \-]?)\d(?:[ \-]?\d){8,11}(?![ \-]?\d)/g;
+  while((m = re.exec(U))) runs.push({d:m[0].replace(/\D/g,""), i:m.index});
+  const labels = []; const reL = /SEGURIDAD SOCIAL|\bNSS\b|AFILIACION/g; while((m = reL.exec(U))) labels.push(m.index);
+  const nearL = c => labels.some(l=>c.i>=l && c.i-l<160);
+  const valid = runs.filter(c=>c.d.length===11 && luhnOk(c.d));
+  const vNear = valid.filter(nearL);
+  const pick = list => (curp ? list.find(c=>c.d.slice(4,6)===curp.slice(4,6)) : null) || list[0];
+  if(vNear.length) return {nss:pick(vNear).d, ok:true, etiqueta:true};
+  if(valid.length) return {nss:pick(valid).d, ok:true, etiqueta:false};
+  const bad = runs.filter(c=>nearL(c) && c.d.length>=9 && c.d.length<=12);
+  if(bad.length) return {nss:bad[0].d, ok:false, etiqueta:true};
+  const bad11 = runs.filter(c=>c.d.length===11);
+  if(bad11.length===1) return {nss:bad11[0].d, ok:false, etiqueta:false};
+  return {nss:"", ok:false, etiqueta:false};
+}
+function namesFromLabels(P){
+  const nom = grab(P, /NOMBRE\s*S?\s*:?\s+([A-Z ]+?)\s+PRIMER APELLIDO/), pa = grab(P, /PRIMER APELLIDO\s*:?\s+([A-Z ]+?)\s+SEGUNDO APELLIDO/),
+        sa = grab(P, /SEGUNDO APELLIDO\s*:?\s+([A-Z ]*?)\s+(?:FECHA|ESTATUS|NOMBRE COMERCIAL|DATOS|SEXO|CURP)/);
+  return (nom && pa) ? {nom, pat:pa, mat:sa||""} : null;
+}
+
+/* Qué campos puede llenar cada tipo de documento */
+const PERMITIDOS = {
+  "CURP": ["pat","mat","nom","curp"],
+  "NSS (IMSS)": ["nss","curp","pat","mat","nom"],
+  "Constancia SAT": ["homo","cp","edo","mun","pat","mat","nom","curp"],
+  "INE": ["pat","mat","nom","curp"],
+  "Banco": ["cuenta","tiene","banco"],
+  "Documento": ["nss","curp","pat","mat","nom"]
+};
+
+/* Bancos: cuenta -> CLABE -> tarjeta. Solo con etiqueta o con dígito verificador. */
+const TRAMPA = /(TELEFONO|TEL|CELULAR|EMPRESA|CLIENTE|REMESA|SUC|SUCURSAL|FOLIO|PLAZA|REFERENCIA|CONVENIO|RFC|CODIGO|CP|C P)\W{0,14}$/;
+function leerBanco(raw, P){
+  const U = norm(raw); let m;
+  const runs = []; const re = /(?<!\d[ \-]?)\d(?:[ \-]?\d){7,21}(?![ \-]?\d)/g;
+  while((m = re.exec(U))){ const antes = plain(U.slice(Math.max(0, m.index-28), m.index)); runs.push({d:m[0].replace(/\D/g,""), i:m.index, antes}); }
+  const libre = r => !TRAMPA.test(r.antes);
+  const clabe = (runs.find(r=>r.d.length===18 && clabeOk(r.d) && libre(r))||{}).d || "";
+  const card = (runs.find(r=>r.d.length===16 && /^[345]/.test(r.d) && luhnOk(r.d) && libre(r) && !/CLABE\W*$/.test(r.antes))||{}).d || "";
+  let cuenta = "", cuentaMala = "";
+  const reC = /(?:N[UO]MERO DE CUENTA|NO\.? ?DE ?CUENTA|NUM\.? ?DE ?CUENTA|NO\.? ?CUENTA|\bCUENTA)(?! ?CLABE)(?! ?DIGITAL)([^\d]{0,16}?)(\d[\d\-]{5,18}\d)(?![\-]?\d)/g;
+  while((m = reC.exec(U))){ if(/CLIENTE|CLABE|TEL|CELULAR|EMPRESA|TARJETA|SUC|PLAZA|RFC/.test(plain(m[1]))) continue;
+    const d = m[2].replace(/\D/g,""); if(d.length===10 || d.length===11){ cuenta = d; break; } else if(!cuentaMala && d.length<18) cuentaMala = d; }
+  const coincide = cuenta && clabe ? clabe.slice(17-cuenta.length, 17)===cuenta : null;
+  const out = {campos:{}, avisos:[], alt:[]};
+  let usar = "";
+  if(cuenta && coincide!==false) usar = cuenta;
+  else if(clabe){ usar = clabe;
+    if(cuenta && coincide===false) out.avisos.push("El número de cuenta no coincide con la CLABE; se usó la CLABE.");
+    else if(cuentaMala) out.avisos.push("La cuenta no se leyó completa; se usó la CLABE."); }
+  else if(card) usar = card;
+  else if(cuentaMala){ usar = cuentaMala; out.avisos.push("La cuenta no se leyó completa; revísala contra la foto."); }
+  if(usar){ out.campos.cuenta = usar; out.campos.tiene = "SI"; }
+  let banco = clabe ? (CLABE_BANCOS[clabe.slice(0,3)]||"") : "";
+  if(!banco){ const b = P.match(/BBVA|BANCOMER|SANTANDER|BANORTE|BANAMEX|HSBC|SCOTIABANK|BANCO AZTECA|BANCOPPEL|INBURSA|BANBAJIO|BANREGIO|AFIRME/); if(b) banco = b[0]==="BANCOMER" ? "BBVA" : b[0]; }
+  if(banco && usar) out.campos.banco = banco;
+  [["cuenta",cuenta],["CLABE",clabe],["tarjeta",card]].forEach(([n,v])=>{ if(v && v!==usar) out.alt.push(n+" "+v); });
+  // titular: solo se compara, no se llena
+  const pat = $("pat").value, nom = ($("nom").value||"").split(" ")[0];
+  if(pat && nom && !(P.includes(plain(pat)) && P.includes(plain(nom))) && /TITULAR|ESTADO DE CUENTA|CLIENTE/.test(P))
+    out.avisos.push("Revisa: no encontré el nombre del trabajador en este documento. ¿La cuenta es de otra persona?");
+  return out;
+}
+
 function parseDoc(raw){
   const T = norm(raw); const P = plain(raw);
-  const out = {tipo:"Documento", campos:{}};
-  const curp = findCurp(T);
+  const out = {tipo:"Documento", campos:{}, avisos:[], alt:[]};
   if(/SITUACION FISCAL|CEDULA DE IDENTIFICACION FISCAL|SERVICIO DE ADMINISTRACION TRIBUTARIA/.test(P)) out.tipo = "Constancia SAT";
   else if(/INSTITUTO NACIONAL ELECTORAL|CREDENCIAL PARA VOTAR|IDMEX/.test(P)) out.tipo = "INE";
+  else if(/SEGURO SOCIAL|\bIMSS\b|SEGURIDAD SOCIAL|AFILIACION/.test(P)) out.tipo = "NSS (IMSS)";
   else if(/CLAVE UNICA DE REGISTRO DE POBLACION|RENAPO|REGISTRO NACIONAL DE POBLACION|CONSTANCIA DE LA CLAVE/.test(P)) out.tipo = "CURP";
-  else if(/CLABE|ESTADO DE CUENTA|NUMERO DE CUENTA|NO DE CUENTA|BBVA|BANCOMER|SANTANDER|BANORTE|BANAMEX|HSBC|SCOTIABANK|BANCO AZTECA|BANCOPPEL|INBURSA/.test(P)) out.tipo = "Banco";
-  if(curp && out.tipo!=="Banco") out.campos.curp = curp;
+  else if(/CLABE|ESTADO DE CUENTA|NUMERO DE CUENTA|NO DE CUENTA|TARJETA DE DEBITO|NUMERO DE TARJETA|BBVA|BANCOMER|SANTANDER|BANORTE|BANAMEX|HSBC|SCOTIABANK|BANCO AZTECA|BANCOPPEL|INBURSA/.test(P)) out.tipo = "Banco";
+
+  if(out.tipo==="Banco"){ const b = leerBanco(raw, P); Object.assign(out.campos, b.campos); out.avisos.push(...b.avisos); out.alt = b.alt; return out; }
+
+  const curp = findCurp(T);
+  if(curp) out.campos.curp = curp;
+  const curpRef = curp || (($("curp").value||"").length===18 ? $("curp").value : "");
+  const ns = findNss(raw, curpRef);
+  if(ns.nss && (out.tipo==="NSS (IMSS)" || ns.etiqueta)){
+    out.campos.nss = ns.nss;
+    if(!ns.ok) out.avisos.push(ns.nss.length!==11 ? `El NSS se leyó con ${ns.nss.length} dígitos (deben ser 11). Revísalo contra el documento.` : "El NSS leído no cuadra su dígito verificador. Revísalo contra el documento.");
+  }
 
   if(out.tipo==="Constancia SAT"){
     const rfc = grab(T.replace(/\s+/g," "), /RFC\s*:?\s*([A-ZÑ&]{4}\s*\d{6}\s*[A-Z0-9]{3})\b/).replace(/\s/g,"");
     if(rfc){ out.campos.homo = rfc.slice(10); out.rfc = rfc; }
-    const one = P;
-    const nom = grab(one, /NOMBRE\s*S?\s*:?\s+([A-Z ]+?)\s+PRIMER APELLIDO/), pa = grab(one, /PRIMER APELLIDO\s*:?\s+([A-Z ]+?)\s+SEGUNDO APELLIDO/),
-          sa = grab(one, /SEGUNDO APELLIDO\s*:?\s+([A-Z ]*?)\s+(?:FECHA|ESTATUS|NOMBRE COMERCIAL|DATOS)/);
-    const namesN = namesFromCurp(raw, curp);
-    if(namesN){ Object.assign(out.campos, namesN); } else if(nom && pa){ out.campos.nom = nom; out.campos.pat = pa; if(sa) out.campos.mat = sa; }
-    const cp = grab(one, /CODIGO POSTAL\s*:?\s*(\d{5})/); if(cp) out.campos.cp = cp;
-    const ent = grab(one, /NOMBRE DE LA ENTIDAD FEDERATIVA\s*:?\s+([A-Z ]+?)(?:\s+(?:ENTRE CALLE|Y CALLE|CORREO|TEL|AL\s|ACTIVIDADES|CARACTERISTICAS|NOMBRE DE)|$)/);
+    const cp = grab(P, /CODIGO POSTAL\s*:?\s*(\d{5})/); if(cp) out.campos.cp = cp;
+    const ent = grab(P, /NOMBRE DE LA ENTIDAD FEDERATIVA\s*:?\s+([A-Z ]+?)(?:\s+(?:ENTRE CALLE|Y CALLE|CORREO|TEL|AL\s|ACTIVIDADES|CARACTERISTICAS|NOMBRE DE)|$)/);
     const edo = estadoDe(ent); if(edo) out.campos.edo = edo;
-    const mun = grab(one, /NOMBRE DEL MUNICIPIO O DEMARCACION TERRITORIAL\s*:?\s+([A-Z ]+?)\s+(?:NOMBRE DE LA ENTIDAD|ENTRE CALLE|Y CALLE|CORREO|TEL)/);
+    const mun = grab(P, /NOMBRE DEL MUNICIPIO O DEMARCACION TERRITORIAL\s*:?\s+([A-Z ]+?)\s+(?:NOMBRE DE LA ENTIDAD|ENTRE CALLE|Y CALLE|CORREO|TEL)/);
     if(mun && edo) out.campos.mun = municipioDe(edo, mun);
   }
-  if(out.tipo==="CURP" || out.tipo==="INE" || (out.tipo==="Documento" && curp)){
-    const curpRef = curp || (($("curp").value||"").length===18 ? $("curp").value : "");
-    let names = namesFromCurp(raw, curpRef);
-    if(!names && out.tipo==="INE"){ // renglón de lectura mecánica: PATERNO<MATERNO<<NOMBRE<NOMBRE
-      const mrz = T.replace(/\s/g,"").match(/([A-Z]{2,}(?:<[A-Z]+)*)<<([A-Z]+(?:<[A-Z]+)*)/);
-      if(mrz){ const ap = mrz[1].split("<"); names = {pat:ap[0]||"", mat:ap.slice(1).join(" "), nom:mrz[2].split("<").join(" ")}; }
-    }
-    if(names) Object.assign(out.campos, names);
-    if(out.tipo==="INE"){ const dom = (P.split("DOMICILIO")[1]||"").split("CLAVE DE ELECTOR")[0]; const cp = (dom.match(/\b(\d{5})\b/)||[])[1]; if(cp) out.campos.cp = cp; }
+  let names = namesFromCurp(raw, curpRef);
+  if(!names && out.tipo==="INE"){ // renglón de lectura mecánica: PATERNO<MATERNO<<NOMBRE
+    const mrz = T.replace(/\s/g,"").match(/([A-Z]{2,}(?:<[A-Z]+)*)<<([A-Z]+(?:<[A-Z]+)*)/);
+    if(mrz){ const ap = mrz[1].split("<"); names = {pat:ap[0]||"", mat:ap.slice(1).join(" "), nom:mrz[2].split("<").join(" ")}; }
   }
-  if(out.tipo==="Banco"){
-    const digitsRuns = (raw.match(/\d[\d \-]{8,30}\d/g)||[]).map(s=>s.replace(/\D/g,""));
-    const clabe = digitsRuns.find(d=>d.length===18 && clabeOk(d));
-    const card = digitsRuns.find(d=>d.length===16 && luhnOk(d));
-    const cta = grab(P, /(?:NUMERO DE CUENTA|NO DE CUENTA|CUENTA|CONTRATO)\s*:?\s*(\d{10,11})\b/);
-    const n = clabe || cta || card;
-    if(n){ out.campos.cuenta = n; out.campos.tiene = "SI"; }
-    let banco = clabe ? CLABE_BANCOS[clabe.slice(0,3)] : "";
-    if(!banco){ const m = P.match(/BBVA|BANCOMER|SANTANDER|BANORTE|BANAMEX|HSBC|SCOTIABANK|BANCO AZTECA|BANCOPPEL|INBURSA|BANBAJIO|BANREGIO|AFIRME/); if(m) banco = m[0]==="BANCOMER" ? "BBVA" : m[0]; }
-    if(banco) out.campos.banco = banco;
-    out.alt = [clabe&&clabe!==n?"CLABE "+clabe:"", card&&card!==n?"tarjeta "+card:"", cta&&cta!==n?"cuenta "+cta:""].filter(Boolean);
-  }
+  if(!names) names = namesFromLabels(P);
+  if(names) Object.assign(out.campos, names);
+
+  const ok = PERMITIDOS[out.tipo] || [];
+  for(const k of Object.keys(out.campos)) if(!ok.includes(k)) delete out.campos[k];
   return out;
 }
 
@@ -765,50 +842,105 @@ async function pdfText(buf){
   return {txt, canvas:cv};
 }
 function imgToCanvas(file){
-  return new Promise((res,rej)=>{ const im = new Image(); im.onload=()=>{ const s = Math.min(1, 2200/Math.max(im.width,im.height)) * (Math.max(im.width,im.height)<1200 ? 1.8 : 1);
-    const cv=document.createElement("canvas"); cv.width=Math.round(im.width*s); cv.height=Math.round(im.height*s); const cx=cv.getContext("2d"); cx.drawImage(im,0,0,cv.width,cv.height); URL.revokeObjectURL(im.src); res(cv); };
+  return new Promise((res,rej)=>{ const im = new Image(); im.onload=()=>{ const L=Math.max(im.width,im.height); const s = L>2400 ? 2400/L : (L<1400 ? 1400/L : 1);
+    const cv=document.createElement("canvas"); cv.width=Math.round(im.width*s); cv.height=Math.round(im.height*s); const cx=cv.getContext("2d"); cx.imageSmoothingQuality="high"; cx.drawImage(im,0,0,cv.width,cv.height); URL.revokeObjectURL(im.src); res(cv); };
     im.onerror=()=>rej(new Error("No se pudo abrir la imagen")); im.src=URL.createObjectURL(file); });
 }
-function prepOcr(cv){
+function rotar(cv, ang){
+  if(!ang) return cv;
+  const r=document.createElement("canvas"), s=ang%180!==0; r.width = s?cv.height:cv.width; r.height = s?cv.width:cv.height;
+  const x=r.getContext("2d"); x.translate(r.width/2, r.height/2); x.rotate(ang*Math.PI/180); x.drawImage(cv, -cv.width/2, -cv.height/2); return r;
+}
+function gris(cv){
   const c2=document.createElement("canvas"); c2.width=cv.width; c2.height=cv.height; const x=c2.getContext("2d"); x.drawImage(cv,0,0);
-  const d=x.getImageData(0,0,c2.width,c2.height), a=d.data;
+  const d=x.getImageData(0,0,c2.width,c2.height); return {c2, x, d};
+}
+function prepOcr(cv){ // gris con más contraste
+  const {c2,x,d}=gris(cv), a=d.data;
   for(let i=0;i<a.length;i+=4){ let g=0.299*a[i]+0.587*a[i+1]+0.114*a[i+2]; g=Math.max(0,Math.min(255,(g-128)*1.35+128)); a[i]=a[i+1]=a[i+2]=g; }
   x.putImageData(d,0,0); return c2;
 }
-async function ocr(cv, onProg){
+function blancoNegro(cv){ // umbral local: quita brillos, sombras y fondos de color
+  const {c2,x,d}=gris(cv), a=d.data, W=c2.width, H=c2.height, g=new Float32Array(W*H);
+  for(let i=0,p=0;i<a.length;i+=4,p++) g[p]=Math.min(a[i],a[i+1],a[i+2])*0.5+(0.299*a[i]+0.587*a[i+1]+0.114*a[i+2])*0.5;
+  const I=new Float64Array((W+1)*(H+1));
+  for(let y=0;y<H;y++){ let s=0; for(let xx=0;xx<W;xx++){ s+=g[y*W+xx]; I[(y+1)*(W+1)+xx+1]=I[y*(W+1)+xx+1]+s; } }
+  const r=Math.max(12, Math.round(Math.min(W,H)/40));
+  for(let y=0;y<H;y++) for(let xx=0;xx<W;xx++){
+    const x0=Math.max(0,xx-r), x1=Math.min(W,xx+r+1), y0=Math.max(0,y-r), y1=Math.min(H,y+r+1);
+    const sum=I[y1*(W+1)+x1]-I[y0*(W+1)+x1]-I[y1*(W+1)+x0]+I[y0*(W+1)+x0], mean=sum/((x1-x0)*(y1-y0));
+    const v = g[y*W+xx] < mean*0.86 ? 0 : 255, k=(y*W+xx)*4; a[k]=a[k+1]=a[k+2]=v; }
+  x.putImageData(d,0,0); return c2;
+}
+async function ocrWorker(){
   if(!window.Tesseract) throw new Error("El lector de fotos no se cargó");
-  if(!DOCS.ocr){
-    DOCS.ocr = await Tesseract.createWorker("spa", 1, { workerPath:"vendor/ocr/worker.min.js", corePath:"vendor/ocr/", langPath:"vendor/ocr/lang", gzip:true, workerBlobURL:false,
-      logger: m => { if(m.status==="recognizing text" && DOCS._prog) DOCS._prog(m.progress); } });
-  }
-  DOCS._prog = onProg;
-  const r = await DOCS.ocr.recognize(prepOcr(cv)); DOCS._prog = null; return r.data.text || "";
+  if(!DOCS.ocr) DOCS.ocr = await Tesseract.createWorker("spa", 1, { workerPath:"vendor/ocr/worker.min.js", corePath:"vendor/ocr/", langPath:"vendor/ocr/lang", gzip:true, workerBlobURL:false,
+    logger: m => { if(m.status==="recognizing text" && DOCS._prog) DOCS._prog(m.progress); } });
+  return DOCS.ocr;
+}
+async function ocr(cvListo, onProg){ const w = await ocrWorker(); DOCS._prog = onProg||null; const r = await w.recognize(cvListo); DOCS._prog = null; return r.data.text || ""; }
+function puntaje(r){
+  const c = r.campos; let s = Object.keys(c).length;
+  if(c.curp) s += 3; if(c.nss) s += (c.nss.length===11 && luhnOk(c.nss)) ? 4 : 1;
+  if(c.cuenta){ const L=c.cuenta.length; s += (L===18&&clabeOk(c.cuenta))||(L===16&&luhnOk(c.cuenta))||L===10||L===11 ? 4 : 1; }
+  if(r.tipo!=="Documento") s += 1; return s;
+}
+/* Lee la foto varias veces (modos, blanco y negro, giros). Un dato solo queda "seguro" si dos lecturas coinciden. */
+async function leerFoto(cv, d){
+  const plan = [[0,"normal","11"],[0,"bn","11"],[0,"normal","3"],[90,"normal","11"],[270,"normal","11"],[90,"bn","11"],[270,"bn","11"],[180,"normal","11"],[0,"bn","3"]];
+  const w = await ocrWorker(); const intentos = []; let best = null;
+  const votos = (k, v) => intentos.filter(a=>a.r.campos[k] && same(a.r.campos[k], v)).length;
+  const confirmado = x => ["curp","nss","cuenta"].filter(k=>x.r.campos[k]).every(k=>votos(k, x.r.campos[k])>=2);
+  try{
+    for(let k=0;k<plan.length;k++){
+      const [ang, modo, psm] = plan[k];
+      const base = rotar(cv, ang), listo = modo==="bn" ? blancoNegro(base) : prepOcr(base);
+      d.estado = k===0 ? "Leyendo foto… 0%" : `Confirmando lectura (intento ${k+1} de ${plan.length})…`; renderDocs();
+      await w.setParameters({tessedit_pageseg_mode: psm});
+      const tx = await ocr(listo, k===0 ? (p=>{ d.estado=`Leyendo foto… ${Math.round(p*100)}%`; renderDocs(); }) : null);
+      const r = parseDoc(tx); const it = {ang, tx, r, s:puntaje(r), base}; intentos.push(it);
+      if(!best || it.s > best.s) best = it;
+      if(k>=1 && best.s >= 8 && confirmado(best)) break;
+    }
+  } finally { await w.setParameters({tessedit_pageseg_mode: "3"}); }
+  const dudosos = Object.keys(best.r.campos).filter(k=>!["tiene","banco"].includes(k) && votos(k, best.r.campos[k])<2);
+  return {txt:best.tx, cv:best.base, r:best.r, dudosos};
 }
 
 async function procesarArchivo(file){
-  const d = {name:file.name, estado:"Leyendo…", tipo:"", campos:{}, preview:"", alt:[]};
+  const d = {name:file.name, estado:"Leyendo…", tipo:"", campos:{}, preview:"", alt:[], avisos:[]};
   DOCS.list.push(d); DOCS.sel = DOCS.list.length-1; renderDocs();
   try{
     let txt="", cv=null;
     if(file.type==="application/pdf" || /\.pdf$/i.test(file.name)){
       if(!window.pdfjsLib) throw new Error("El lector de PDF no se cargó");
       const r = await pdfText(await file.arrayBuffer()); txt = r.txt; cv = r.canvas;
-      if(plain(txt).length < 40){ d.estado="PDF escaneado: leyendo como foto…"; renderDocs(); txt = await ocr(cv, p=>{ d.estado=`Leyendo foto… ${Math.round(p*100)}%`; renderDocs(); }); d.foto=true; }
-    } else if(/^image\//.test(file.type)){
-      cv = await imgToCanvas(file); d.preview = cv.toDataURL("image/jpeg",0.85); d.estado="Leyendo foto… 0%"; renderDocs();
-      txt = await ocr(cv, p=>{ d.estado=`Leyendo foto… ${Math.round(p*100)}%`; renderDocs(); }); d.foto=true;
+      if(plain(txt).length < 40){ const b = await leerFoto(cv, d); txt = b.txt; cv = b.cv; d.foto=true; d.r = b.r; d.dudosos = b.dudosos; }
+    } else if(/\.(heic|heif)$/i.test(file.name) || /heic|heif/.test(file.type)) throw new Error("las fotos HEIC de iPhone no se pueden leer; mándala como JPG o toma captura de pantalla");
+    else if(/^image\//.test(file.type)){
+      cv = await imgToCanvas(file); d.preview = cv.toDataURL("image/jpeg",0.85); renderDocs();
+      const b = await leerFoto(cv, d); txt = b.txt; cv = b.cv; d.foto=true; d.r = b.r; d.dudosos = b.dudosos;
     } else throw new Error("Solo PDF o fotos (JPG, PNG)");
-    if(cv && !d.preview) d.preview = cv.toDataURL("image/jpeg",0.85);
-    const r = parseDoc(txt); d.tipo = r.tipo; d.campos = r.campos; d.alt = r.alt||[]; d.rfc = r.rfc;
+    d.cv = cv; d.preview = cv.toDataURL("image/jpeg",0.85);
+    const r = d.r || parseDoc(txt); delete d.r; d.tipo = r.tipo; d.campos = r.campos; d.alt = r.alt||[]; d.avisos = r.avisos||[]; d.rfc = r.rfc;
+    d.dudosos = (d.dudosos||[]).filter(k=>d.campos[k]);
+    const NOMB = {nss:"el NSS", cuenta:"la cuenta", curp:"la CURP"};
+    for(const k of ["nss","cuenta","curp"]) if(d.dudosos.includes(k)){
+      delete d.campos[k]; if(k==="cuenta"){ delete d.campos.tiene; delete d.campos.banco; }
+      d.avisos = d.avisos.filter(a=>!(k==="nss" && /NSS/.test(a)) && !(k==="cuenta" && /cuenta/i.test(a)));
+      d.avisos.push(`No pude leer ${NOMB[k]} con seguridad (las lecturas no coincidieron). Captura el dato viendo la foto o usa «Recortar y leer».`);
+    }
+    d.dudosos = d.dudosos.filter(k=>d.campos[k]);
+    if(d.dudosos.length) d.avisos.push("Lo que quedó en naranja no se leyó con seguridad (dos lecturas no coincidieron): compáralo contra la foto.");
     const n = Object.keys(d.campos).length;
-    d.estado = n ? `${n} dato${n===1?"":"s"} leído${n===1?"":"s"}` : "No encontré datos. Captura a mano viendo el documento.";
+    d.estado = n ? `${n} dato${n===1?"":"s"} leído${n===1?"":"s"}` + (d.avisos.length ? " · revisar" : "") : "No encontré datos. Usa «Recortar y leer» o captura viendo la foto.";
     aplicarCampos(d);
   }catch(e){ d.estado = "No se pudo leer: " + (e.message||e); }
   renderDocs(); render();
 }
 
 /* ---- llenar campos y marcar ---- */
-const AUTO = {}; // campo -> {src, valor}
+const AUTO = {}; // campo -> {src}
 const CONFL = {}; // campo -> [{src, valor}]
 function same(a,b){ return plain(a)===plain(b); }
 function aplicarCampos(d){
@@ -816,7 +948,8 @@ function aplicarCampos(d){
   for(const [k,v] of Object.entries(d.campos)){
     const el = $(k); if(!el || !v) continue;
     const actual = el.value;
-    if(!actual){ setField(k, v); AUTO[k] = {src}; }
+    const dud = (d.dudosos||[]).includes(k);
+    if(!actual){ setField(k, v); AUTO[k] = {src, dudoso:dud}; }
     else if(same(actual, v)){ if(!AUTO[k]) AUTO[k] = {src}; else if(!AUTO[k].src.includes(src)) AUTO[k].src += " + " + src; }
     else { (CONFL[k] = CONFL[k] || []).push({src, valor:v}); }
   }
@@ -828,14 +961,16 @@ function setField(k, v){
   else if(el.tagName==="SELECT"){ if(![...el.options].some(o=>o.value===v)){ const o=document.createElement("option"); o.textContent=v; el.appendChild(o); } el.value=v; }
   else el.value=v;
   if(k==="tiene"){ $("solic").value="NO"; $("conella").value="SI"; }
-  if(window._updCuenta) window._updCuenta();
+  if(window._updCuenta) window._updCuenta(); if(window._updNss) window._updNss();
 }
 function marcarCampos(){
   document.querySelectorAll(".f .src").forEach(s=>s.remove());
   FIELDS.forEach(k=>{ const el=$(k); if(!el) return; el.classList.remove("auto","mis"); });
-  for(const [k,a] of Object.entries(AUTO)){ const el=$(k); if(!el||!el.value) continue; el.classList.add("auto"); tag(k, "leído de " + a.src, "src"); }
+  for(const [k,a] of Object.entries(AUTO)){ const el=$(k); if(!el||!el.value) continue;
+    if(a.dudoso){ el.classList.add("mis"); tag(k, "leído de " + a.src + " · lectura dudosa, verifica contra la foto", "src mis-t"); }
+    else { el.classList.add("auto"); tag(k, "leído de " + a.src, "src"); } }
   for(const [k,list] of Object.entries(CONFL)){ const el=$(k); if(!el) continue; el.classList.add("mis"); tag(k, list.map(x=>`${x.src} dice: ${x.valor}`).join(" · "), "src mis-t"); }
-  renderCoinc();
+  renderCoinc(); if(window._updCuenta) window._updCuenta(); if(window._updNss) window._updNss();
 }
 function tag(k, text, cls){ const lab = document.querySelector(`label[for="${k}"]`); if(!lab) return; const s=document.createElement("span"); s.className=cls; s.textContent=" · "+text; lab.appendChild(s); }
 function limpiarDocs(){ DOCS.list=[]; DOCS.sel=-1; for(const k in AUTO) delete AUTO[k]; for(const k in CONFL) delete CONFL[k]; marcarCampos(); renderDocs(); }
@@ -846,14 +981,71 @@ function renderDocs(){
   card.hidden = !DOCS.list.length;
   box.innerHTML = DOCS.list.map((d,i)=>`<button type="button" class="dchip${i===DOCS.sel?" on":""}" data-doc="${i}"><b>${esc(d.tipo||"Documento")}</b><span>${esc(d.estado)}</span></button>`).join("");
   const d = DOCS.list[DOCS.sel];
-  pv.innerHTML = d ? (d.preview ? `<img src="${d.preview}" alt="Vista del documento ${esc(d.name)}" id="doc-img">` : `<div class="empty">${esc(d.estado)}</div>`) + (d.alt&&d.alt.length?`<p class="hint">También encontré: ${esc(d.alt.join(", "))}</p>`:"") : "";
+  pv.innerHTML = d ? (d.preview ? `<img src="${d.preview}" alt="Vista del documento ${esc(d.name)}" id="doc-img">` : `<div class="empty">${esc(d.estado)}</div>`)
+    + (d.avisos&&d.avisos.length ? `<div class="doc-aviso">${d.avisos.map(a=>`<p>⚠ ${esc(a)}</p>`).join("")}</div>` : "")
+    + (d.alt&&d.alt.length ? `<p class="hint">También encontré: ${esc(d.alt.join(" · "))}</p>` : "") : "";
   $("doc-name").textContent = d ? d.name : "";
+  $("doc-crop").hidden = !(d && d.cv);
 }
 function renderCoinc(){
   const n = Object.keys(CONFL).length, el=$("doc-coinc");
   el.hidden = !n;
   el.innerHTML = n ? "<b>No coinciden entre documentos:</b><ul>" + Object.entries(CONFL).map(([k,l])=>`<li>${esc(LABELS_FIELD[k]||k)}: ficha dice ${esc($(k).value)}; ${l.map(x=>esc(x.src)+" dice "+esc(x.valor)).join("; ")}</li>`).join("") + "</ul>" : "";
 }
+
+/* ---- recortar y leer un número ---- */
+const CROP = {sel:null, start:null};
+function abrirRecorte(){
+  const d = DOCS.list[DOCS.sel]; if(!d || !d.cv) return;
+  $("crop-img").src = d.cv.toDataURL("image/jpeg",0.9); CROP.sel=null; $("crop-sel").hidden=true; $("crop-msg").textContent=""; $("crop").hidden=false;
+}
+function cerrarRecorte(){ $("crop").hidden=true; }
+async function leerRecorte(como){
+  const d = DOCS.list[DOCS.sel], img=$("crop-img"), msg=$("crop-msg");
+  if(!CROP.sel || CROP.sel.w<8 || CROP.sel.h<6){ msg.textContent="Primero arrastra un recuadro sobre el número."; return; }
+  const k = d.cv.width / img.clientWidth, s = CROP.sel;
+  const sx=Math.max(0,Math.round(s.x*k)), sy=Math.max(0,Math.round(s.y*k)), sw=Math.round(s.w*k), sh=Math.round(s.h*k);
+  const esc2 = Math.max(1, Math.min(4, 90/Math.max(1,sh)));
+  const c=document.createElement("canvas"); c.width=Math.round(sw*esc2)+40; c.height=Math.round(sh*esc2)+40;
+  const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.imageSmoothingQuality="high"; x.drawImage(d.cv, sx,sy,sw,sh, 20,20,c.width-40,c.height-40);
+  msg.textContent="Leyendo… (varias lecturas para confirmar)";
+  const w = await ocrWorker();
+  const lista = como==="curp" ? "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789" : "0123456789 -";
+  const lecturas = [];
+  const recorte = alto => { const e = Math.max(1, Math.min(6, alto/Math.max(1,sh))); const c=document.createElement("canvas"); c.width=Math.round(sw*e)+40; c.height=Math.round(sh*e)+40;
+    const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.imageSmoothingQuality="high"; x.drawImage(d.cv, sx,sy,sw,sh, 20,20,c.width-40,c.height-40); return c; };
+  try{
+    for(const alto of [70, 110, 150]) for(const f of [prepOcr, blancoNegro]) for(const psm of ["7","8"]){
+      await w.setParameters({tessedit_char_whitelist: lista, tessedit_pageseg_mode: psm});
+      const tx = (await w.recognize(f(recorte(alto)))).data.text||"";
+      const v = como==="curp" ? (findCurp(norm(tx)) || norm(tx).replace(/[^A-Z0-9Ñ]/g,"").slice(0,18)) : tx.replace(/\D/g,"");
+      if(v) lecturas.push(v);
+    }
+  } finally { await w.setParameters({tessedit_char_whitelist: "", tessedit_pageseg_mode: "3"}); }
+  const bueno = v => como==="nss" ? (v.length===11 && luhnOk(v)) : como==="curp" ? (v.length===18 && curpDV(v)===v[17]) : ((v.length===18&&clabeOk(v))||(v.length===16&&luhnOk(v))||v.length===10||v.length===11);
+  const cuenta = {}; lecturas.forEach(v=>cuenta[v]=(cuenta[v]||0)+1);
+  const orden = Object.entries(cuenta).sort((x,y)=> (y[1]-x[1]) || (bueno(y[0])-bueno(x[0])));
+  let val = orden.length ? orden[0][0] : "", votosVal = orden.length ? orden[0][1] : 0;
+  if(votosVal < 3){ msg.textContent = "No pude leer ese número con seguridad (salieron lecturas distintas). Ajusta el recuadro solo al número o captúralo a mano viendo la foto."; return; }
+  const dudoso = !bueno(val);
+  window._ultimasLecturas = cuenta;
+  if(!val){ msg.textContent="No pude leer ese recorte. Intenta un recuadro más ajustado al número."; return; }
+  setField(como, val); AUTO[como] = {src:"recorte de " + (d.tipo||"documento"), dudoso}; delete CONFL[como];
+  if(como==="cuenta"){ setField("tiene","SI"); if(val.length===18 && clabeOk(val) && CLABE_BANCOS[val.slice(0,3)]) setField("banco", CLABE_BANCOS[val.slice(0,3)]); }
+  marcarCampos(); render(); cerrarRecorte();
+  toast(dudoso ? `Leído: ${val}, pero no es seguro. Compáralo con cuidado contra la foto.` : `Leído: ${val}. Compáralo contra la foto.`);
+}
+function initRecorte(){
+  const st=$("crop-stage"), sel=$("crop-sel");
+  const pos = e => { const r=$("crop-img").getBoundingClientRect(); return {x:Math.min(Math.max(0,e.clientX-r.left),r.width), y:Math.min(Math.max(0,e.clientY-r.top),r.height)}; };
+  st.addEventListener("pointerdown",e=>{ e.preventDefault(); st.setPointerCapture(e.pointerId); CROP.start=pos(e); CROP.sel={x:CROP.start.x,y:CROP.start.y,w:0,h:0}; sel.hidden=false; draw(); });
+  st.addEventListener("pointermove",e=>{ if(!CROP.start) return; const p=pos(e); CROP.sel={x:Math.min(p.x,CROP.start.x), y:Math.min(p.y,CROP.start.y), w:Math.abs(p.x-CROP.start.x), h:Math.abs(p.y-CROP.start.y)}; draw(); });
+  st.addEventListener("pointerup",()=>{ CROP.start=null; });
+  function draw(){ const s=CROP.sel, im=$("crop-img"); sel.style.left=(im.offsetLeft+s.x)+"px"; sel.style.top=(im.offsetTop+s.y)+"px"; sel.style.width=s.w+"px"; sel.style.height=s.h+"px"; }
+  $("crop-btns").addEventListener("click",e=>{ const b=e.target.closest("[data-as]"); if(!b) return; if(b.dataset.as==="x") cerrarRecorte(); else leerRecorte(b.dataset.as).catch(err=>{ $("crop-msg").textContent="No se pudo leer: "+(err.message||err); }); });
+  $("doc-crop").addEventListener("click",abrirRecorte);
+}
+
 function initDocs(){
   const inp=$("doc-file"), dz=$("dropzone");
   const go = files => { [...files].reduce((p,f)=>p.then(()=>procesarArchivo(f)), Promise.resolve()); };
@@ -861,13 +1053,16 @@ function initDocs(){
   dz.addEventListener("dragover",e=>{ e.preventDefault(); dz.classList.add("over"); });
   dz.addEventListener("dragleave",()=>dz.classList.remove("over"));
   dz.addEventListener("drop",e=>{ e.preventDefault(); dz.classList.remove("over"); go(e.dataTransfer.files); });
+  document.addEventListener("paste",e=>{ if($("v-cap").hidden) return; const fs=[...(e.clipboardData?.items||[])].filter(i=>i.kind==="file").map(i=>i.getAsFile()).filter(Boolean);
+    if(fs.length){ e.preventDefault(); go(fs.map((f,i)=>new File([f], f.name && f.name!=="image.png" ? f.name : `captura-pegada-${Date.now()}-${i}.png`, {type:f.type}))); } });
   $("docs-list").addEventListener("click",e=>{ const b=e.target.closest("[data-doc]"); if(b){ DOCS.sel=+b.dataset.doc; renderDocs(); } });
   $("doc-prev").addEventListener("click",e=>{ if(e.target.id==="doc-img"){ $("zoom-img").src=e.target.src; $("zoom").hidden=false; } });
   $("zoom").addEventListener("click",()=>$("zoom").hidden=true);
-  document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("zoom").hidden=true; });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ $("zoom").hidden=true; cerrarRecorte(); } });
   $("doc-clear").addEventListener("click",limpiarDocs);
   FIELDS.forEach(k=>{ const el=$(k); if(!el) return; el.addEventListener("input",()=>{ if(AUTO[k]||CONFL[k]){ delete AUTO[k]; delete CONFL[k]; marcarCampos(); } }); });
   if(window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf/pdf.worker.min.js";
+  initRecorte();
 }
 
 /* ---------- UI ---------- */
@@ -892,8 +1087,14 @@ function init(){
   ["nss","tel","cuenta","btel","cp"].forEach(k=>$(k).addEventListener("input",e=>{ e.target.value=e.target.value.replace(/\D/g,""); }));
   const updCuenta=()=>{ const n=$("cuenta").value, info=cuentaInfo(n,$("banco").value), el=$("cuenta-info");
     if(info.banco && !$("banco").value){ $("banco").value=info.banco; }
-    el.textContent = n ? (info.err ? info.err : info.msg) : "Sin guiones ni espacios (se quitan solos)";
-    el.style.color = info.err ? "var(--bad)" : (n ? "var(--ok)" : ""); };
+    const dud = typeof AUTO!=="undefined" && AUTO.cuenta && AUTO.cuenta.dudoso;
+    el.textContent = n ? (info.err ? info.err : dud ? "Lectura no segura: compárala número por número contra la foto" : info.msg) : "Sin guiones ni espacios (se quitan solos)";
+    el.style.color = info.err ? "var(--bad)" : dud ? "var(--warn)" : (n ? "var(--ok)" : ""); };
+  const updNss=()=>{ const n=$("nss").value, el=$("nss-info"); if(!n){ el.textContent=""; return; }
+    const ok = n.length===11 && luhnOk(n), dud = typeof AUTO!=="undefined" && AUTO.nss && AUTO.nss.dudoso;
+    el.textContent = n.length!==11 ? `${n.length} dígitos: el NSS debe tener 11` : !ok ? "No cuadra el dígito verificador: revisa los números" : dud ? "Lectura no segura: compáralo número por número contra la foto" : "11 dígitos · NSS válido ✓";
+    el.style.color = !ok ? "var(--bad)" : dud ? "var(--warn)" : "var(--ok)"; };
+  $("nss").addEventListener("input",updNss); window._updNss=updNss;
   $("cuenta").addEventListener("input",updCuenta); $("banco").addEventListener("change",updCuenta); window._updCuenta=updCuenta;
   $("edo").addEventListener("change",()=>{ $("mun").value=""; refreshMun(); });
   $("tiene").addEventListener("change",()=>{ const t=$("tiene").value; if(t==="NO"){ $("solic").value="SI"; $("conella").value="NO"; } if(t==="SI"){ $("solic").value="NO"; $("conella").value="SI"; } render(); });

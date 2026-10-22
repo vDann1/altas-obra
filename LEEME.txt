@@ -1,30 +1,43 @@
-ALTAS DE OBRA - app para Google Chrome (funciona sin internet)
-==============================================================
+ALTAS DE OBRA - app para Google Chrome (funciona sin internet) - versión 2
+==========================================================================
 
-PUBLICARLA (solo tú, una vez, ~5 minutos, gratis)
+ACTUALIZAR EN GITHUB (ya la tienes publicada)
 1. Descomprime este ZIP. Te queda la carpeta "altas-obra-app".
-2. Entra a https://app.netlify.com/drop con Chrome.
-3. Arrastra la carpeta "altas-obra-app" completa a la página.
-4. Crea tu cuenta gratis cuando te lo pida (si no, el link se borra en una hora).
-5. Te da un link tipo https://algo.netlify.app  ->  ese es el link de la app.
-   (En "Site configuration > Change site name" le puedes poner, por ejemplo, altas-obra-tuempresa.)
+2. En GitHub, entra a tu repositorio altas-obra > Add file > Upload files.
+3. Abre la carpeta "altas-obra-app", selecciona TODO lo de adentro (Ctrl+A) y arrástralo.
+   Reemplaza lo anterior y agrega lo nuevo.
+4. Commit changes. En 1-2 minutos se actualiza el link (https://vdann1.github.io/altas-obra/).
+5. Las laptops toman la versión nueva solas la próxima vez que abran la app con internet.
+   Si no ves los cambios: cierra la app, ábrela con internet y recarga (F5).
 
 INSTALARLA EN CADA LAPTOP (cada supervisor, una vez, con internet)
 1. Abrir el link en Google Chrome.
-2. Dar clic en el botón amarillo "Instalar app" (arriba a la derecha),
-   o en el ícono de instalar que aparece al final de la barra de direcciones.
-3. Queda un ícono "Altas de Obra" en el escritorio y en el menú de inicio.
-   De ahí en adelante abre aunque no haya internet.
+2. Dar clic en "Instalar app" (arriba a la derecha) o en el ícono de instalar
+   que aparece al final de la barra de direcciones.
+3. Queda un ícono "Altas de Obra" en el escritorio. De ahí en adelante abre sin internet.
+   La primera vez tarda un poco más porque descarga el lector de fotos (~12 MB).
 
 USO DIARIO
-1. Arriba: obra, supervisor y fecha.
-2. Captura: llenar la ficha, revisar el cuadro REVISIÓN y dar GUARDAR. NUEVA ALTA limpia la ficha.
+1. Arriba: obra, supervisor y fecha. El botón "Tema" cambia entre claro, oscuro y automático.
+2. Captura:
+   - Opcional: "Elegir archivos" o arrastrar documentos (PDF de CURP, Constancia del SAT,
+     foto de INE, carátula o estado de cuenta del banco). Se leen sin internet y llenan campos.
+     AZUL = leído del documento: compáralo contra la imagen (clic para agrandar).
+     NARANJA = dos documentos no coinciden: revisa cuál es el correcto.
+     Los documentos NO se guardan.
+   - Completar lo que falte, revisar el cuadro REVISIÓN y dar GUARDAR.
+   - NUEVA ALTA limpia la ficha.
 3. Lista: ver a todos, corregir o borrar.
 4. Generar Excel: DESCARGAR EXCEL y mandarlo por correo.
    Después de enviarlo: VACIAR LISTA (ya la envié) para empezar el siguiente lote.
 
+CUENTA / TARJETA / CLABE
+- Se puede escribir o pegar con guiones o espacios; se quitan solos.
+- Abajo del campo dice cuántos dígitos lleva y si es válido.
+- Tarjeta (16) y CLABE (18) se revisan con su dígito verificador.
+- Con la CLABE el banco se pone solo y avisa si no coincide con el elegido.
+
 IMPORTANTE
 - Los datos se guardan SOLO en esa laptop y en ese Chrome. No se suben a internet.
-- No borrar "datos de navegación / cookies" de Chrome antes de descargar el Excel: se perdería lo capturado.
-- Si cambias algo de la app (listas, campos), se vuelve a subir la carpeta a Netlify y las laptops
-  se actualizan solas la siguiente vez que abran la app con internet.
+- No borrar "datos de navegación / cookies" de Chrome antes de descargar el Excel.
+- Las fotos se leen mejor derechas, sin brillo y enfocadas. Siempre revisar los campos azules.

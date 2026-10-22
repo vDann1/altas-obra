@@ -1,0 +1,30 @@
+ALTAS DE OBRA - app para Google Chrome (funciona sin internet)
+==============================================================
+
+PUBLICARLA (solo tú, una vez, ~5 minutos, gratis)
+1. Descomprime este ZIP. Te queda la carpeta "altas-obra-app".
+2. Entra a https://app.netlify.com/drop con Chrome.
+3. Arrastra la carpeta "altas-obra-app" completa a la página.
+4. Crea tu cuenta gratis cuando te lo pida (si no, el link se borra en una hora).
+5. Te da un link tipo https://algo.netlify.app  ->  ese es el link de la app.
+   (En "Site configuration > Change site name" le puedes poner, por ejemplo, altas-obra-tuempresa.)
+
+INSTALARLA EN CADA LAPTOP (cada supervisor, una vez, con internet)
+1. Abrir el link en Google Chrome.
+2. Dar clic en el botón amarillo "Instalar app" (arriba a la derecha),
+   o en el ícono de instalar que aparece al final de la barra de direcciones.
+3. Queda un ícono "Altas de Obra" en el escritorio y en el menú de inicio.
+   De ahí en adelante abre aunque no haya internet.
+
+USO DIARIO
+1. Arriba: obra, supervisor y fecha.
+2. Captura: llenar la ficha, revisar el cuadro REVISIÓN y dar GUARDAR. NUEVA ALTA limpia la ficha.
+3. Lista: ver a todos, corregir o borrar.
+4. Generar Excel: DESCARGAR EXCEL y mandarlo por correo.
+   Después de enviarlo: VACIAR LISTA (ya la envié) para empezar el siguiente lote.
+
+IMPORTANTE
+- Los datos se guardan SOLO en esa laptop y en ese Chrome. No se suben a internet.
+- No borrar "datos de navegación / cookies" de Chrome antes de descargar el Excel: se perdería lo capturado.
+- Si cambias algo de la app (listas, campos), se vuelve a subir la carpeta a Netlify y las laptops
+  se actualizan solas la siguiente vez que abran la app con internet.

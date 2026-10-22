@@ -10,7 +10,7 @@
   ],
   "vars": {
     "ADMIN_EMAILS": "danielzurian99@gmail.com",
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": ""
+    "ACCESS_TEAM_DOMAIN": "https://square-field-9ef0.cloudflareaccess.com",
+    "ACCESS_AUD": "f1467925303539415e92afeac1e6ca061c1ee30487b7a1713da8d0e1c6753c0f"
   }
 }

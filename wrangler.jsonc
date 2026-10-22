@@ -1,0 +1,16 @@
+{
+  "name": "altas-obra",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-09-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "altas", "database_id": "8e08c0d8-b93b-4a10-890e-9b5d1186b40f" }
+  ],
+  "vars": {
+    "ADMIN_EMAILS": "danielzurian99@gmail.com",
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": ""
+  }
+}

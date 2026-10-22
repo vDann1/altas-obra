@@ -55,6 +55,19 @@ header.top .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;paddi
 .hf input{height:34px;box-sizing:border-box}
 @media (max-width:640px){.hgroup{flex-wrap:wrap;width:100%}.hgroup .hf{flex:1 1 140px}.hgroup .hf input{width:100%}}
 .hf input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.hf select{background:rgba(255,255,255,.1);color:var(--brand-fg);border:1px solid rgba(255,255,255,.28);border-radius:6px;padding:0 9px;font:inherit;width:175px;max-width:100%;height:34px}
+.hf select option{color:#111;background:#fff}
+.who{font:500 12px var(--body);display:flex;gap:8px;align-items:center;opacity:.92}
+.who a{color:inherit}
+.bloqueo{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:16px}
+.bloqueo .card{max-width:440px}
+.alist{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.alist li{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 6px 3px 11px;font-size:13px}
+.alist button{border:0;background:none;color:var(--bad);font:600 13px var(--body);cursor:pointer;padding:2px 4px}
+.achk{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
+.achk label{display:flex;gap:6px;align-items:center;color:var(--fg)}
+.agrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+@media (max-width:640px){.agrid{grid-template-columns:minmax(0,1fr)}}
 nav.tabs{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--brand)}
 nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto}
@@ -160,6 +173,7 @@ h2.sec{font:600 18px var(--display);letter-spacing:.04em;margin:18px 0 8px}
 <header class="top"><div class="wrap">
   <div class="brand"><i aria-hidden="true"></i>ALTAS DE OBRA <span id="net" class="net" title="Estado de conexión"></span></div>
   <button class="b inst" id="b-inst" type="button" hidden>Instalar app</button>
+  <span class="who" id="who" hidden></span>
   <button class="b theme" id="b-theme" type="button" aria-label="Cambiar tema">Tema: automático</button>
   <div class="hgroup">
   <div class="hf"><label for="h-obra">Obra</label><input id="h-obra" placeholder="STUDIO 96"></div>
@@ -172,6 +186,7 @@ h2.sec{font:600 18px var(--display);letter-spacing:.04em;margin:18px 0 8px}
   <button role="tab" id="t-cap" aria-selected="true" data-v="cap">Captura</button>
   <button role="tab" id="t-lis" aria-selected="false" data-v="lis">Lista <span class="count" id="c-lis">0</span></button>
   <button role="tab" id="t-exp" aria-selected="false" data-v="exp">Generar Excel</button>
+  <button role="tab" id="t-adm" aria-selected="false" data-v="adm" hidden>Usuarios y obras</button>
 </div></nav>
 
 <main class="wrap">
@@ -298,8 +313,36 @@ h2.sec{font:600 18px var(--display);letter-spacing:.04em;margin:18px 0 8px}
     <tbody id="tb2"></tbody>
   </table></div>
 </section>
+
+<!-- ADMINISTRACIÓN (solo en la nube, solo administrador) -->
+<section id="v-adm" hidden>
+  <div class="exp">
+    <div class="card"><h3>Obras</h3>
+      <div class="agrid"><div class="f"><label for="a-obra">Nueva obra</label><input id="a-obra" placeholder="Ej. STUDIO 96" data-up></div>
+      <div class="f" style="justify-content:flex-end"><button class="b primary" id="a-obra-add" type="button">Agregar obra</button></div></div>
+      <ul class="alist" id="a-obras"></ul>
+    </div>
+    <div class="card"><h3 id="a-u-t">Dar de alta usuario</h3>
+      <div class="agrid">
+        <div class="f"><label for="a-email">Correo</label><input id="a-email" type="email" placeholder="supervisor@correo.com" autocomplete="off"></div>
+        <div class="f"><label for="a-nombre">Nombre</label><input id="a-nombre" data-up></div>
+        <div class="f"><label for="a-rol">Tipo</label><select id="a-rol"><option value="supervisor">Supervisor (solo sus obras)</option><option value="admin">Administrador (todo)</option></select></div>
+        <div class="f"><label for="a-activo">Acceso</label><select id="a-activo"><option value="1">Activo</option><option value="0">Suspendido</option></select></div>
+        <div class="f wide"><label>Obras que puede ver</label><div class="achk" id="a-u-obras"></div></div>
+      </div>
+      <div class="btns" style="margin-top:12px"><button class="b primary" id="a-save" type="button">Guardar usuario</button><button class="b" id="a-clear" type="button">Limpiar</button></div>
+      <p class="hint" id="a-msg" style="margin:8px 0 0"></p>
+    </div>
+  </div>
+  <h2 class="sec">Usuarios</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>Correo</th><th>Nombre</th><th>Tipo</th><th>Obras</th><th>Acceso</th><th></th></tr></thead>
+    <tbody id="a-tb"></tbody>
+  </table></div>
+  <p class="hint">Para que alguien entre: dalo de alta aquí. Luego abre el link de la app, escribe su correo y le llega un código para entrar.</p>
+</section>
 </main>
-<footer class="wrap" style="padding-block:0 28px;font-size:12px;color:var(--muted)">Altas de Obra · versión v3.3</footer>
+<footer class="wrap" style="padding-block:0 28px;font-size:12px;color:var(--muted)">Altas de Obra · versión v4.0</footer>
 
 <datalist id="dl-puestos"></datalist>
 <datalist id="dl-centros"></datalist>
@@ -1089,7 +1132,7 @@ async function consultarSat(url){
   if(navigator.onLine === false) return {ok:false, sinRed:true};
   const ac = new AbortController(), t = setTimeout(()=>ac.abort(), 12000);
   try{
-    const r = await fetch(SAT_WORKER + "?qr=" + encodeURIComponent(url), {signal:ac.signal, cache:"no-store"});
+    const r = await fetch((NUBE.activo ? "/api/sat" : SAT_WORKER) + "?qr=" + encodeURIComponent(url), {signal:ac.signal, cache:"no-store", credentials:"same-origin"});
     const j = await r.json(); return j && typeof j==="object" ? j : {ok:false, error:"respuesta rara"};
   }catch(e){ return {ok:false, error: e.name==="AbortError" ? "el SAT tardó demasiado" : "no hubo conexión"}; }
   finally{ clearTimeout(t); }
@@ -1341,10 +1384,97 @@ function initDocs(){
   initRecorte();
 }
 
+/* ---------- nube (Cloudflare): usuario, obras y administración ----------
+   En GitHub Pages no existe /api y la app funciona como siempre. */
+const NUBE = {activo:false, yo:null};
+const YO_KEY = "altasObra.yo";
+async function api(path, body){
+  let r;
+  try{ r = await fetch(path, {method: body ? "POST" : "GET", credentials:"same-origin", cache:"no-store", redirect:"manual",
+    headers: body ? {"Content-Type":"application/json"} : {}, body: body ? JSON.stringify(body) : undefined}); }
+  catch(e){ throw Object.assign(new Error("Sin conexión con el servidor."), {red:true}); }
+  if(r.type==="opaqueredirect" || r.status===0) throw Object.assign(new Error("Tu sesión venció. Recarga la página para volver a entrar."), {sesion:true});
+  let j; try{ j = await r.json(); }catch(e){ throw Object.assign(new Error("noapi"), {noapi:true, status:r.status}); }
+  if(!r.ok || j.ok===false) throw Object.assign(new Error(j.error || ("Error " + r.status)), {status:r.status});
+  return j;
+}
+async function iniciarNube(){
+  let yo = null;
+  try{ yo = await api("/api/yo"); try{ localStorage.setItem(YO_KEY, JSON.stringify(yo)); }catch(e){} }
+  catch(e){
+    if(e.noapi) return;                       // GitHub Pages: modo de siempre
+    if(e.status===403){ bloquear(e.message); return; }
+    try{ yo = JSON.parse(localStorage.getItem(YO_KEY) || "null"); }catch(_){}
+    if(!yo){ if(e.sesion || e.status===401) toast(e.message); return; }
+    if(e.sesion || e.status===401) toast(e.message);
+  }
+  NUBE.activo = true; NUBE.yo = yo; aplicarYo();
+}
+function bloquear(msg){
+  const d = document.createElement("div"); d.className = "bloqueo";
+  d.innerHTML = `<div class="card"><h3>Sin acceso</h3><p>${esc(msg)}</p><div class="btns"><a class="b" href="/cdn-cgi/access/logout">Entrar con otro correo</a></div></div>`;
+  document.body.appendChild(d);
+}
+function aplicarYo(){
+  const yo = NUBE.yo;
+  const w = $("who"); w.hidden = false;
+  w.innerHTML = `<span>${esc(yo.email)}${yo.rol==="admin" ? " · admin" : ""}</span><a href="/cdn-cgi/access/logout">Salir</a>`;
+  // Obra: solo las asignadas
+  const old = $("h-obra"), sel = document.createElement("select"); sel.id = "h-obra";
+  const obras = yo.obras || [];
+  sel.innerHTML = obras.length ? obras.map(o=>`<option>${esc(o)}</option>`).join("") : `<option value="">Sin obra asignada</option>`;
+  if(!obras.includes(state.head.obra)){ state.head.obra = obras[0] || ""; persist(); }
+  sel.value = state.head.obra;
+  sel.addEventListener("change", ()=>{ state.head.obra = sel.value; persist(); renderExport(); });
+  old.replaceWith(sel);
+  if(!obras.length) toast("No tienes obras asignadas. Pide al administrador que te asigne una.");
+  if(!state.head.sup && yo.nombre){ state.head.sup = yo.nombre; $("h-sup").value = yo.nombre; persist(); }
+  $("t-adm").hidden = yo.rol !== "admin";
+  renderExport();
+}
+// ---- pantalla de administración ----
+const ADM = {usuarios:[], obras:[]};
+async function cargarAdmin(){
+  $("a-msg").textContent = "Cargando…";
+  try{ const j = await api("/api/admin/datos"); ADM.usuarios = j.usuarios; ADM.obras = j.obras; $("a-msg").textContent = ""; }
+  catch(e){ $("a-msg").textContent = e.message; return; }
+  pintarAdmin();
+}
+function pintarAdmin(){
+  $("a-obras").innerHTML = ADM.obras.length ? ADM.obras.map(o=>`<li>${esc(o)}<button type="button" data-bo="${esc(o)}" aria-label="Quitar obra ${esc(o)}">✕</button></li>`).join("") : `<li style="border:0;padding:0" class="hint">Todavía no hay obras.</li>`;
+  const marcadas = new Set([...document.querySelectorAll("#a-u-obras input:checked")].map(x=>x.value));
+  $("a-u-obras").innerHTML = ADM.obras.length ? ADM.obras.map(o=>`<label><input type="checkbox" value="${esc(o)}"${marcadas.has(o)?" checked":""}>${esc(o)}</label>`).join("") : `<span class="hint">Primero agrega una obra.</span>`;
+  $("a-tb").innerHTML = ADM.usuarios.map((u,i)=>`<tr><td>${esc(u.email)}</td><td>${esc(u.nombre)}</td><td>${u.rol==="admin"?"Administrador":"Supervisor"}</td>
+    <td>${u.rol==="admin" ? "Todas" : esc(u.obras.join(", ")||"—")}</td><td>${u.activo?"Activo":"Suspendido"}</td>
+    <td><div class="rowact"><button type="button" data-ue="${i}">Editar</button>${u.email===NUBE.yo.email?"":`<button type="button" class="del" data-ud="${i}">Borrar</button>`}</div></td></tr>`).join("");
+}
+function limpiarUsuarioForm(){ $("a-email").value=""; $("a-email").readOnly=false; $("a-nombre").value=""; $("a-rol").value="supervisor"; $("a-activo").value="1"; document.querySelectorAll("#a-u-obras input").forEach(x=>x.checked=false); $("a-u-t").textContent="Dar de alta usuario"; }
+function initAdmin(){
+  $("a-obra-add").addEventListener("click", async ()=>{ const n=$("a-obra").value.trim(); if(!n) return;
+    try{ await api("/api/admin/obra",{nombre:n}); $("a-obra").value=""; await cargarAdmin(); toast("Obra agregada"); }catch(e){ $("a-msg").textContent=e.message; } });
+  $("a-obras").addEventListener("click", async e=>{ const b=e.target.closest("[data-bo]"); if(!b) return;
+    if(!confirm(`¿Quitar la obra ${b.dataset.bo}? Los usuarios ya no la verán.`)) return;
+    try{ await api("/api/admin/borrar-obra",{nombre:b.dataset.bo}); await cargarAdmin(); }catch(e){ $("a-msg").textContent=e.message; } });
+  $("a-save").addEventListener("click", async ()=>{
+    const body = {email:$("a-email").value.trim(), nombre:$("a-nombre").value.trim(), rol:$("a-rol").value, activo:$("a-activo").value==="1",
+      obras:[...document.querySelectorAll("#a-u-obras input:checked")].map(x=>x.value)};
+    if(body.rol==="supervisor" && !body.obras.length){ $("a-msg").textContent="Marca al menos una obra para el supervisor."; return; }
+    try{ await api("/api/admin/usuario", body); limpiarUsuarioForm(); await cargarAdmin(); $("a-msg").textContent = "Guardado. Ya puede entrar con su correo."; }
+    catch(e){ $("a-msg").textContent = e.message; } });
+  $("a-clear").addEventListener("click", ()=>{ limpiarUsuarioForm(); $("a-msg").textContent=""; });
+  $("a-tb").addEventListener("click", async e=>{
+    const ed=e.target.closest("[data-ue]"), del=e.target.closest("[data-ud]");
+    if(ed){ const u=ADM.usuarios[+ed.dataset.ue]; $("a-email").value=u.email; $("a-email").readOnly=true; $("a-nombre").value=u.nombre; $("a-rol").value=u.rol; $("a-activo").value=u.activo?"1":"0";
+      document.querySelectorAll("#a-u-obras input").forEach(x=>x.checked=u.obras.includes(x.value)); $("a-u-t").textContent="Editar usuario"; window.scrollTo({top:0,behavior:"smooth"}); }
+    if(del){ const u=ADM.usuarios[+del.dataset.ud]; if(!confirm(`¿Quitarle el acceso a ${u.email}?`)) return;
+      try{ await api("/api/admin/borrar-usuario",{email:u.email}); await cargarAdmin(); }catch(err){ $("a-msg").textContent=err.message; } }
+  });
+}
+
 /* ---------- UI ---------- */
 let tt; function toast(t){ const el=$("toast"); el.textContent=t; el.hidden=false; clearTimeout(tt); tt=setTimeout(()=>el.hidden=true,2600); }
-function tab(v){ ["cap","lis","exp"].forEach(x=>{ $("v-"+x).hidden = x!==v; $("t-"+x).setAttribute("aria-selected", x===v); }); window.scrollTo({top:0}); }
-document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>tab(b.dataset.v)));
+function tab(v){ ["cap","lis","exp","adm"].forEach(x=>{ $("v-"+x).hidden = x!==v; $("t-"+x).setAttribute("aria-selected", x===v); }); window.scrollTo({top:0}); }
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{ tab(b.dataset.v); if(b.dataset.v==="adm") cargarAdmin(); }));
 
 const THEME_KEY="altasObra.theme", THEMES=["auto","light","dark"], THEME_TXT={auto:"Tema: automático",light:"Tema: claro",dark:"Tema: oscuro"};
 function applyTheme(t){ if(t==="auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme=t; const b=$("b-theme"); if(b) b.textContent=THEME_TXT[t]; }
@@ -1389,8 +1519,9 @@ function init(){
   });
   $("b-ej").addEventListener("click",()=>{ state.rows=state.rows.filter(r=>!r.ej); state.ejQuitados=true; if(state.head.obra.includes("(EJEMPLO)")) state.head.obra=""; $("h-obra").value=state.head.obra; persist(); renderList(); toast("Ejemplos quitados"); });
   $("b-xls").addEventListener("click",descargar);
-  initDocs();
+  initDocs(); initAdmin();
   render(); renderList();
+  iniciarNube();
 }
 init();
 

@@ -1,6 +1,13 @@
-ALTAS DE OBRA - app para Google Chrome (funciona sin internet) - versión 3.3
+ALTAS DE OBRA - app para Google Chrome (funciona sin internet) - versión 4.0
 ============================================================================
 Link de la app: https://vdann1.github.io/altas-obra/
+
+NOVEDADES VERSIÓN 4.0 (versión en la nube, Cloudflare)
+- La app también vive en Cloudflare, con candado: se entra con el correo y un código.
+- Solo entran los correos dados de alta en "Usuarios y obras" (pestaña del administrador).
+- Cada supervisor tiene sus obras asignadas; el campo Obra se elige de esa lista.
+- La consulta al SAT se hace dentro de la misma app.
+- En GitHub (vdann1.github.io) la app sigue funcionando igual que antes, como respaldo.
 
 NOVEDADES VERSIÓN 3.3
 - Constancia del SAT: la app lee el QR (también en PDF escaneado o foto).
@@ -61,7 +68,7 @@ ACTUALIZAR EN GITHUB (solo cambian 3 archivos)
 2. Arrastra: index.html, sw.js y LEEME.txt.
    En la 3.3 arrastra también la carpeta "vendor" del zip (solo trae qr/jsQR.js).
 3. Commit changes. Espera a que el punto amarillo se vuelva palomita verde (1-3 min).
-4. Abre la app en Chrome y recarga con Ctrl+F5. Abajo debe decir "versión v3.3".
+4. Abre la app en Chrome y recarga con Ctrl+F5. Abajo debe decir "versión v4.0".
 
 INSTALARLA EN CADA LAPTOP (cada supervisor, una vez, con internet)
 1. Abrir https://vdann1.github.io/altas-obra/ en Google Chrome.
